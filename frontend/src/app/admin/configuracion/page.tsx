@@ -213,7 +213,7 @@ export default function AdminConfiguracionPage() {
       a.href = url;
       const cd = res.headers.get("Content-Disposition") || "";
       const m = cd.match(/filename="?([^"]+)"?/);
-      a.download = m ? m[1] : "ticketve_backup.sql";
+      a.download = m ? m[1] : "oly_backup.sql";
       document.body.appendChild(a);
       a.click();
       a.remove();

@@ -4,14 +4,14 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
-  FileText, ShieldCheck, Building2, UserRound, Ticket, Wallet,
-  QrCode, RotateCcw, Ban, Copyright, Lock, Scale, RefreshCw, Gavel,
+  FileText, ShieldCheck, Building2, UserRound, Shirt, Wallet,
+  CreditCard, Truck, RotateCcw, Ban, Copyright, Lock, Scale, RefreshCw, Gavel,
   Mail, Info, AlertTriangle, ChevronRight,
 } from "lucide-react";
 import { useSiteConfig } from "@/lib/siteConfig";
 
 /** Fecha de la última revisión del documento. */
-const UPDATED = "Octubre de 2026";
+const UPDATED = "Noviembre de 2026";
 
 interface Section {
   id: string;
@@ -35,8 +35,7 @@ export default function TerminosContent() {
           <p>
             Al acceder, navegar o realizar una compra en <strong>{company}</strong> aceptás de forma
             plena y sin reservas estos Términos y Condiciones, junto con las políticas que los
-            complementen. Si no estás de acuerdo con ellos, te pedimos abstenerte de usar la
-            plataforma.
+            complementen. Si no estás de acuerdo con ellos, te pedimos abstenerte de usar la tienda.
           </p>
           <p>
             Podemos actualizar estos términos cuando sea necesario. La versión vigente será siempre
@@ -46,25 +45,24 @@ export default function TerminosContent() {
       ),
     },
     {
-      id: "rol",
+      id: "quienes-somos",
       icon: Building2,
-      title: `2. Qué es ${company} y cuál es su rol`,
+      title: `2. Quiénes somos`,
       body: (
         <>
           <p>
-            <strong>{company}</strong> es una plataforma tecnológica que conecta a quienes organizan
-            eventos (<em>Organizadores</em>) con las personas que desean comprar entradas
-            (<em>Usuarios</em> o <em>compradores</em>).
+            <strong>{company}</strong> es una tienda online dedicada a la venta de ropa deportiva,
+            principalmente para mujer. Vendemos de forma directa nuestros propios productos a través
+            de esta plataforma.
           </p>
           <p>
-            No organizamos, producimos ni operamos los eventos. Nuestra labor es ofrecer las
-            herramientas de publicación, venta, cobro y emisión de boletos. El contenido, la fecha,
-            el horario, la sede y las condiciones del evento son responsabilidad exclusiva del
-            Organizador.
+            A lo largo de estos términos, nos referimos a <strong>{company}</strong> como
+            &ldquo;la tienda&rdquo;, &ldquo;nosotros&rdquo; o &ldquo;nos&rdquo;, y a quien compra como
+            &ldquo;el cliente&rdquo; o &ldquo;vos&rdquo;.
           </p>
           <Callout icon={Info} tone="info">
-            En pocas palabras: el evento lo organiza un tercero; nosotros somos el medio de venta y
-            cobro.
+            Somos el vendedor directo de los productos: comprás directamente a {company}, no a un
+            tercero.
           </Callout>
         </>
       ),
@@ -95,25 +93,26 @@ export default function TerminosContent() {
       ),
     },
     {
-      id: "compra",
-      icon: Ticket,
-      title: "4. Compra de entradas",
+      id: "productos",
+      icon: Shirt,
+      title: "4. Productos, tallas y disponibilidad",
       body: (
         <>
           <p>
-            Antes de pagar, revisá con atención el evento, la fecha, la hora, la sede, el sector o
-            asiento y la cantidad de entradas.
+            Hacemos nuestro mayor esfuerzo por mostrar imágenes, descripciones, tallas y colores de
+            forma fiel. Sin embargo, los colores pueden variar levemente según la pantalla de tu
+            dispositivo.
           </p>
           <ul>
-            <li>La disponibilidad no está garantizada hasta que el pago sea confirmado.</li>
             <li>
-              Cada evento puede fijar un límite de entradas por persona. Si se excede, la orden puede
-              cancelarse sin previo aviso.
+              La disponibilidad de cada producto depende del stock de la talla y el color elegidos.
+              Si un artículo se agota, podés consultarnos por reposición.
             </li>
             <li>
-              La confirmación de la compra con el pago procesado constituye una oferta vinculante
-              para el comprador.
+              Te recomendamos revisar la guía de tallas y las medidas antes de comprar, ya que los
+              cambios de talla están sujetos a las condiciones de la sección de cambios y devoluciones.
             </li>
+            <li>Las promociones u ofertas están vigentes mientras se muestren en la tienda.</li>
           </ul>
         </>
       ),
@@ -121,132 +120,126 @@ export default function TerminosContent() {
     {
       id: "precios",
       icon: Wallet,
-      title: "5. Precios, cargos por servicio e impuestos",
+      title: "5. Precios y moneda",
       body: (
         <>
+          <p>Los precios se publican en dólares estadounidenses (USD).</p>
           <p>
-            El precio de la entrada puede incluir un cargo por servicio por el uso de la plataforma,
-            así como los impuestos aplicables según la normativa vigente.
+            Para tu comodidad, podés ver el equivalente en bolívares (Bs.) usando la tasa de cambio
+            vigente al momento de la consulta. El monto en bolívares se calcula con la tasa activa de
+            la tienda y puede variar hasta que se confirme el pago.
           </p>
           <p>
-            Antes de confirmar la compra verás el detalle de lo que pagás: precio base, cargo por
-            servicio e impuestos. Al continuar, aceptás dicho importe.
+            Antes de confirmar el pedido verás el detalle del total, incluidos los impuestos
+            aplicables y el costo de envío.
           </p>
           <Callout icon={AlertTriangle} tone="warning">
-            El cargo por servicio corresponde a un servicio ya prestado y no es reembolsable, salvo
-            que la ley disponga lo contrario.
+            El total a pagar es el que se muestra en el resumen final del checkout al momento de tu
+            compra.
           </Callout>
         </>
       ),
     },
     {
-      id: "pagos",
-      icon: Wallet,
-      title: "6. Formas de pago y confirmación",
+      id: "pedidos-pago",
+      icon: CreditCard,
+      title: "6. Pedidos y forma de pago",
       body: (
         <>
-          <p>Los métodos de pago disponibles se muestran al momento de finalizar la compra.</p>
+          <p>Los métodos de pago disponibles se muestran al finalizar la compra.</p>
           <ul>
             <li>
-              Tu compra queda <strong>pendiente</strong> hasta que se verifique y confirme el pago.
+              Tu pedido queda en estado <strong>pendiente</strong> hasta que verifiquemos y
+              confirmemos el pago.
             </li>
             <li>
-              En métodos manuales (transferencia, pago móvil, criptomonedas o efectivo) puede
-              pedírtese indicar una referencia y/o adjuntar el comprobante de pago.
+              En métodos manuales (transferencia bancaria, pago móvil, criptomonedas o efectivo)
+              puede pedírtese indicar una referencia y/o adjuntar el comprobante de pago.
             </li>
             <li>
-              Las reservas de asientos son temporales: si el pago no se confirma dentro del plazo
-              indicado, la reserva se libera y la orden puede anularse.
-            </li>
-            <li>La confirmación puede depender de la verificación bancaria correspondiente.</li>
-          </ul>
-        </>
-      ),
-    },
-    {
-      id: "boletos",
-      icon: QrCode,
-      title: "7. Emisión y uso de los boletos",
-      body: (
-        <>
-          <ul>
-            <li>
-              Emitimos boletos electrónicos con código QR, salvo que el evento indique otra
-              modalidad (boleto físico o retiro en taquilla).
+              La confirmación del pedido puede depender de la verificación bancaria correspondiente.
+              Solo después de confirmar el pago apartamos el stock y preparamos el envío.
             </li>
             <li>
-              El código QR es de un solo uso e intransferible. Su custodia es responsabilidad
-              exclusiva del comprador.
-            </li>
-            <li>
-              No nos hacemos responsables por la pérdida, el robo, el daño o el uso indebido del
-              código, ni por la reventa realizada fuera de canales autorizados.
-            </li>
-            <li>
-              En caso de robo, se puede evaluar una reimpresión presentando la denuncia
-              correspondiente y notificando con antelación al evento.
+              Nos reservamos el derecho de cancelar órdenes que no hayan sido pagadas o cuyo pago no
+              pueda verificarse.
             </li>
           </ul>
         </>
       ),
     },
     {
-      id: "devoluciones",
+      id: "envios",
+      icon: Truck,
+      title: "7. Envíos y entregas",
+      body: (
+        <>
+          <p>
+            Realizamos envíos dentro del territorio venezolano. El costo y el tiempo estimado de
+            entrega se muestran al elegir el método de envío en el checkout.
+          </p>
+          <ul>
+            <li>Los tiempos de entrega son estimados y pueden variar por causas ajenas a nosotros.</li>
+            <li>
+              Es tu responsabilidad indicar correctamente la dirección, la ciudad y el estado de
+              entrega. No nos hacemos responsables por entregas fallidas por datos incompletos o
+              incorrectos.
+            </li>
+            <li>
+              Una vez que el paquete se entrega al transportista, el riesgo del envío se transfiere a
+              tu cargo, salvo que elijas una modalidad con seguro.
+            </li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      id: "cambios-devoluciones",
       icon: RotateCcw,
-      title: "8. Cancelaciones, reprogramaciones y reembolsos",
+      title: "8. Cambios y devoluciones",
       body: (
         <>
-          <p>
-            Solo procede reembolso cuando el Organizador cancela o reprograma el evento, o cuando
-            así lo disponga la ley.
-          </p>
+          <p>Queremos que estés satisfecha con tu compra. Aplican las siguientes reglas:</p>
           <ul>
             <li>
-              El monto a reembolsar corresponde al <strong>precio base</strong> de la entrada. El
-              cargo por servicio no es reembolsable por tratarse de un servicio ya prestado.
+              Podés solicitar un <strong>cambio de talla</strong> dentro de los 7 días calendario
+              siguientes a la entrega, siempre que la prenda esté sin usar, sin lavar y con sus
+              etiquetas originales.
             </li>
             <li>
-              No hay reembolso si no asistís, si no usás el boleto adquirido, o si el evento se
-              reprograma por causas de fuerza mayor.
+              Los gastos de envío asociados al cambio corren por cuenta del cliente, salvo que el
+              producto presente un defecto de fabricación.
             </li>
             <li>
-              El medio y el plazo del reembolso dependen del método de pago utilizado y de los
-              procesos administrativos del Organizador.
+              Si el producto llega con un <strong>defecto de fabricación</strong> o no corresponde a
+              lo que compraste, comunicalo dentro de las 48 horas siguientes a la entrega para
+              gestionar el cambio o la devolución.
+            </li>
+            <li>
+              No se aceptan devoluciones por talla ni por cambio de opinión. En caso de proceder un
+              reembolso, se hará por el mismo medio de pago utilizado.
             </li>
           </ul>
-        </>
-      ),
-    },
-    {
-      id: "eventos-cancelados",
-      icon: Ban,
-      title: "9. Eventos cancelados o reprogramados",
-      body: (
-        <>
-          <p>
-            Si el Organizador cancela o reprograma un evento, te notificaremos a través de los datos
-            registrados en tu cuenta.
-          </p>
-          <p>
-            Las condiciones del reembolso se rigen por la sección anterior y por lo que disponga el
-            Organizador del evento.
-          </p>
+          <Callout icon={Info} tone="info">
+            Para iniciar un cambio o reportar un defecto, escribinos a{" "}
+            <a href={`mailto:${email}`} className="font-medium underline">{email}</a> con tu número de
+            pedido y una foto del producto.
+          </Callout>
         </>
       ),
     },
     {
       id: "prohibiciones",
       icon: Ban,
-      title: "10. Usos prohibidos",
+      title: "9. Usos prohibidos",
       body: (
         <>
           <p>No está permitido:</p>
           <ul>
-            <li>Revender entradas sin autorización del Organizador.</li>
-            <li>Usar bots, scripts u otros medios automatizados para comprar o reservar.</li>
+            <li>Usar bots, scripts u otros medios automatizados para comprar o acaparar stock.</li>
             <li>Cometer fraude o usar datos o medios de pago de terceros sin su consentimiento.</li>
-            <li>Intentar vulnerar, sobrecargar o interferir con la seguridad de la plataforma.</li>
-            <li>Publicar o difundir contenido ilícito o engañoso.</li>
+            <li>Intentar vulnerar, sobrecargar o interferir con la seguridad de la tienda.</li>
+            <li>Publicar o difundir contenido ilícito, difamatorio o engañoso.</li>
           </ul>
           <p>
             El incumplimiento puede derivar en la cancelación de órdenes, la suspensión de la cuenta
@@ -258,11 +251,11 @@ export default function TerminosContent() {
     {
       id: "propiedad",
       icon: Copyright,
-      title: "11. Propiedad intelectual",
+      title: "10. Propiedad intelectual",
       body: (
         <>
           <p>
-            Los contenidos, marcas, logotipos, textos, imágenes, diseños y software de la plataforma
+            Los contenidos, marcas, logotipos, textos, imágenes, diseños y software de la tienda
             pertenecen a <strong>{company}</strong> o a sus licenciantes.
           </p>
           <p>
@@ -275,19 +268,19 @@ export default function TerminosContent() {
     {
       id: "datos",
       icon: Lock,
-      title: "12. Protección de datos personales",
+      title: "11. Protección de datos personales",
       body: (
         <>
           <p>
-            Tratamos tus datos personales para gestionar tu registro, tus compras, la emisión de
-            boletos y las notificaciones relacionadas con ellas.
+            Tratamos tus datos personales para gestionar tu registro, tus pedidos, los envíos y las
+            notificaciones relacionadas con tu compra.
           </p>
           <ul>
             <li>
-              Podemos compartir la información necesaria con el Organizador del evento y con
-              proveedores de pago, únicamente para completar la operación.
+              Podemos compartir la información necesaria con transportistas y proveedores de pago,
+              únicamente para completar la operación.
             </li>
-            <li>No vendemos ni cedemos tus datos a terceros con fines ajenos a la compra.</li>
+            <li>No vendemos ni cedemos tus datos a terceros con fines ajenos a tu compra.</li>
             <li>
               Podés solicitar acceso, corrección o eliminación de tus datos escribiendo a{" "}
               <a href={`mailto:${email}`} className="font-medium text-brand-700 hover:underline">
@@ -297,8 +290,8 @@ export default function TerminosContent() {
             </li>
           </ul>
           <Callout icon={ShieldCheck} tone="info">
-            Usamos tus datos de contacto (incluidos teléfono y cédula) para emitir boletos y
-            comunicarnos con vos sobre tu compra.
+            Usamos tus datos de contacto (incluidos teléfono y cédula) para coordinar la entrega y
+            comunicarnos con vos sobre tu pedido.
           </Callout>
         </>
       ),
@@ -306,13 +299,13 @@ export default function TerminosContent() {
     {
       id: "responsabilidad",
       icon: Scale,
-      title: "13. Limitación de responsabilidad y fuerza mayor",
+      title: "12. Limitación de responsabilidad y fuerza mayor",
       body: (
         <>
           <ul>
             <li>
-              No respondemos por actos u omisiones de los Organizadores ni de terceros vinculados al
-              evento.
+              No respondemos por actos u omisiones de transportistas, proveedores de pago ni otros
+              terceros vinculados a la operación.
             </li>
             <li>No garantizamos la disponibilidad ininterrumpida ni libre de errores del sitio.</li>
             <li>
@@ -321,8 +314,8 @@ export default function TerminosContent() {
               crisis sanitarias, alteraciones del orden público, entre otros).
             </li>
             <li>
-              En la medida permitida por la ley, nuestra responsabilidad se limita al monto del cargo
-              por servicio efectivamente cobrado.
+              En la medida permitida por la ley, nuestra responsabilidad se limita al valor del
+              producto adquirido.
             </li>
           </ul>
         </>
@@ -331,7 +324,7 @@ export default function TerminosContent() {
     {
       id: "modificaciones",
       icon: RefreshCw,
-      title: "14. Modificaciones de estos términos",
+      title: "13. Modificaciones de estos términos",
       body: (
         <>
           <p>
@@ -339,8 +332,8 @@ export default function TerminosContent() {
             versión actualizada en esta página con su nueva fecha.
           </p>
           <p>
-            El uso de la plataforma después de una actualización implica la aceptación de los cambios.
-            Te recomendamos revisar esta página periódicamente.
+            El uso de la tienda después de una actualización implica la aceptación de los cambios. Te
+            recomendamos revisar esta página periódicamente.
           </p>
         </>
       ),
@@ -348,7 +341,7 @@ export default function TerminosContent() {
     {
       id: "ley",
       icon: Gavel,
-      title: "15. Ley aplicable y contacto",
+      title: "14. Ley aplicable y contacto",
       body: (
         <>
           <p>
@@ -387,7 +380,7 @@ export default function TerminosContent() {
             Términos y Condiciones
           </h1>
           <p className="mt-4 text-lg text-gray-300 max-w-2xl">
-            Las reglas que rigen el uso de {company} y la compra de entradas en nuestra plataforma.
+            Las reglas que rigen el uso de {company} y la compra de productos en nuestra tienda.
           </p>
           <p className="mt-3 text-sm text-gray-400">Última actualización: {UPDATED}</p>
         </div>
@@ -443,19 +436,19 @@ export default function TerminosContent() {
               <ul className="mt-3 grid gap-2 sm:grid-cols-2 text-sm text-ink-700">
                 <li className="flex gap-2">
                   <ChevronRight className="w-4 h-4 mt-0.5 text-brand-700 shrink-0" />
-                  <span>{company} es un intermediario de venta; el evento lo organiza un tercero.</span>
+                  <span>Comprás directamente a {company}.</span>
                 </li>
                 <li className="flex gap-2">
                   <ChevronRight className="w-4 h-4 mt-0.5 text-brand-700 shrink-0" />
-                  <span>Tu compra se confirma cuando se verifica el pago.</span>
+                  <span>Tu pedido se confirma cuando verificamos el pago.</span>
                 </li>
                 <li className="flex gap-2">
                   <ChevronRight className="w-4 h-4 mt-0.5 text-brand-700 shrink-0" />
-                  <span>El cargo por servicio no es reembolsable.</span>
+                  <span>Revisá talla y color antes de pagar.</span>
                 </li>
                 <li className="flex gap-2">
                   <ChevronRight className="w-4 h-4 mt-0.5 text-brand-700 shrink-0" />
-                  <span>El código QR de tu boleto es personal e intransferible.</span>
+                  <span>Los cambios de talla aplican dentro de 7 días, con etiquetas.</span>
                 </li>
               </ul>
             </div>

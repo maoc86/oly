@@ -14,6 +14,14 @@ const SITE_URL = "olyofficial.com";
 export async function renderOgImage() {
   const font = await readFile(join(process.cwd(), "src/app/fonts/GeistSans-Regular.ttf"));
 
+  let logoData: string | null = null;
+  try {
+    const logo = await readFile(join(process.cwd(), "public/brand/logo.png"));
+    logoData = `data:image/png;base64,${logo.toString("base64")}`;
+  } catch {
+    logoData = null;
+  }
+
   return new ImageResponse(
     (
       <div
@@ -43,9 +51,13 @@ export async function renderOgImage() {
               "radial-gradient(circle, rgba(236,72,153,0.32) 0%, rgba(139,92,246,0.12) 45%, rgba(0,0,0,0) 72%)",
           }}
         />
-        <div style={{ display: "flex", alignItems: "baseline", fontSize: 96, fontWeight: 900, letterSpacing: -3, color: "#ffffff" }}>
-          Oly<span style={{ color: PINK }}>.</span>
-        </div>
+        {logoData ? (
+          <img src={logoData} width={360} height={120} alt="Oly Official" style={{ objectFit: "contain" }} />
+        ) : (
+          <div style={{ display: "flex", alignItems: "baseline", fontSize: 96, fontWeight: 900, letterSpacing: -3, color: "#ffffff" }}>
+            Oly<span style={{ color: PINK }}>.</span>
+          </div>
+        )}
         <div
           style={{
             marginTop: 40,

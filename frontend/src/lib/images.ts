@@ -4,7 +4,7 @@
  * Las imágenes nuevas se guardan con URL relativa (`/uploads/...`) y se
  * proxean al backend vía el rewrite de Next. Las antiguas pueden ser
  * absolutas (`http://localhost:8000/uploads/...` o
- * `https://api.ticketve.com/uploads/...`); en ese caso extraemos el path
+ * `https://api.olyofficial.com/uploads/...`); en ese caso extraemos el path
  * `/uploads/...` para que el optimizador de Next y el navegador resuelvan
  * la URL contra el host actual.
  */

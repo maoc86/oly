@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useSiteConfig, isSet } from "@/lib/siteConfig";
 
 /**
- * Logo de la marca. Si el admin subió un logo en Configuración se usa ese;
- * si no, se muestra un wordmark tipográfico de Oly.
+ * Logo de la marca. Prioridad:
+ * 1. Logo subido desde el panel (Configuración → `company_logo`).
+ * 2. El archivo `/public/brand/logo.png` del proyecto.
+ * 3. Wordmark tipográfico "Oly." si no hay ningún logo disponible.
  */
 export default function BrandLogo({
   variant = "dark",
@@ -14,20 +17,27 @@ export default function BrandLogo({
   className?: string;
 }) {
   const { config } = useSiteConfig();
-  const src = isSet(config.company_logo) ? config.company_logo : null;
+  const [error, setError] = useState(false);
 
-  if (src) {
+  const src = isSet(config.company_logo) ? config.company_logo : "/brand/logo.png";
+
+  if (error) {
+    const textColor = variant === "dark" ? "text-white" : "text-ink-900";
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={src} alt={config.company_name || "Oly Official"} className={`w-auto object-contain ${className}`} />
+      <span className={`inline-flex items-baseline font-black tracking-tight leading-none select-none ${className}`}>
+        <span className={`text-xl sm:text-2xl uppercase ${textColor}`}>Oly</span>
+        <span className="text-brand-500 text-xl sm:text-2xl">.</span>
+      </span>
     );
   }
 
-  const textColor = variant === "dark" ? "text-white" : "text-ink-900";
   return (
-    <span className={`inline-flex items-baseline font-black tracking-tight leading-none select-none ${className}`}>
-      <span className={`text-xl sm:text-2xl uppercase ${textColor}`}>Oly</span>
-      <span className="text-brand-500 text-xl sm:text-2xl">.</span>
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={config.company_name || "Oly Official"}
+      className={`w-auto object-contain ${className}`}
+      onError={() => setError(true)}
+    />
   );
 }
