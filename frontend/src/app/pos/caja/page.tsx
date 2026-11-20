@@ -51,8 +51,8 @@ export default function PosCajaPage() {
   if (loading) return <div className="h-40 bg-gray-200 rounded-2xl animate-pulse" />;
 
   const byCurrency = session?.summary?.by_currency ?? [];
-  const usdTotal = byCurrency.find((c) => c.currency === "USD")?.total ?? 0;
-  const vesTotal = byCurrency.find((c) => c.currency === "VES")?.total ?? 0;
+  const usdTotal = Number(byCurrency.find((c) => c.currency === "USD")?.total ?? 0);
+  const vesTotal = Number(byCurrency.find((c) => c.currency === "VES")?.total ?? 0);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -79,7 +79,7 @@ export default function PosCajaPage() {
             </div>
             <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between text-sm">
               <span className="font-medium text-gray-700">Total consolidado (USD)</span>
-              <span className="font-bold text-gray-900">${(session.summary?.total_usd ?? 0).toFixed(2)}</span>
+              <span className="font-bold text-gray-900">${Number(session.summary?.total_usd ?? 0).toFixed(2)}</span>
             </div>
           </div>
 
