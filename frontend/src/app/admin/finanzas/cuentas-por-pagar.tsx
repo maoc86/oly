@@ -105,7 +105,7 @@ export default function CuentasPorPagar() {
   const [vendorForm, setVendorForm] = useState({ id: null as number | null, name: "", category: "", phone: "", email: "", rif: "", notes: "" });
   const [payableForm, setPayableForm] = useState({ vendor_id: "", description: "", amount: "", currency: "USD", due_date: "" });
   const [payoutForm, setPayoutForm] = useState({
-    payee_type: "organizer" as "organizer" | "vendor",
+    payee_type: "vendor" as "organizer" | "vendor",
     payee_id: "",
     amount: "",
     currency: "USD",
@@ -608,15 +608,8 @@ export default function CuentasPorPagar() {
       <Modal open={payoutOpen} onClose={() => setPayoutOpen(false)} title="Registrar pago" size="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de acreedor</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button type="button" onClick={() => setPayoutForm({ ...payoutForm, payee_type: "organizer", payee_id: "", payable_ids: [] })} className={`px-3 py-2 rounded-lg text-sm font-medium border ${payoutForm.payee_type === "organizer" ? "bg-brand-600 text-white border-brand-600" : "bg-white text-gray-600 border-gray-300"}`}>
-                Organizador
-              </button>
-              <button type="button" onClick={() => setPayoutForm({ ...payoutForm, payee_type: "vendor", payee_id: "", payable_ids: [] })} className={`px-3 py-2 rounded-lg text-sm font-medium border ${payoutForm.payee_type === "vendor" ? "bg-brand-600 text-white border-brand-600" : "bg-white text-gray-600 border-gray-300"}`}>
-                Proveedor
-              </button>
-            </div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Acreedor</label>
+            <p className="text-sm text-gray-500">El pago se registra a un proveedor.</p>
           </div>
           <Select label="Acreedor *" value={payoutForm.payee_id} onChange={(e) => setPayoutForm({ ...payoutForm, payee_id: e.target.value })} options={payeeOptionsForType} />
           <div className="grid grid-cols-2 gap-3">

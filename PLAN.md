@@ -82,15 +82,22 @@ olyofficial/
 ## Roadmap
 
 - [x] **Fase 0 — Base:** copiar ticketve → `olyofficial`, limpiar, git init.
-- [ ] **Fase 1 — Dominio backend:** reescribir modelos (productos/variantes/inventario),
-      quitar eventos/boletos/organizador, migraciones nuevas.
-- [ ] **Fase 2 — API:** rutas de catálogo, carrito, checkout, admin productos/inventario,
-      POS, finanzas, tasas.
-- [ ] **Fase 3 — Tienda pública:** home, catálogo con filtros, detalle (talla/color),
-      carrito, checkout (transferencia + comprobante), cuenta/mis pedidos.
-- [ ] **Fase 4 — Panel admin + POS:** dashboard, productos, inventario, finanzas, tasas,
-      ventas, POS con caja.
-- [ ] **Fase 5 — Pulido:** branding deportivo, responsive, SEO/OG, mejoras de UX.
+- [x] **Fase 1 — Dominio backend:** reescribir modelos (productos/variantes/inventario),
+      quitar eventos/boletos/organizador, migración inicial nueva.
+- [x] **Fase 2 — API:** rutas de catálogo, carrito, checkout, admin productos/inventario,
+      POS, finanzas, tasas, cupones, envíos, clientes.
+- [x] **Fase 3 — Tienda pública:** home, catálogo con filtros, detalle (talla/color),
+      carrito, checkout (transferencia + comprobante), cuenta/mis pedidos, favoritos.
+- [x] **Fase 4 — Panel admin + POS:** dashboard, productos, inventario, finanzas, tasas,
+      ventas/pedidos, POS con caja.
+- [ ] **Fase 5 — Pulido:** branding deportivo (colores/imágenes reales), contenido legal
+      (términos), responsive final, SEO/OG, mejoras de UX.
+
+## Pendientes conocidos
+
+- Redactar el contenido de Términos y Condiciones para la tienda (hoy es el texto de eventos).
+- Pestaña "Cuentas por pagar" de Finanzas: quitar la opción "organizador" que ya no aplica.
+- Probar el stack completo en Docker (frontend + backend + db) y el despliegue con Caddy.
 
 ## Referencias
 
