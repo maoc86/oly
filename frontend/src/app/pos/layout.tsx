@@ -34,7 +34,7 @@ export default function PosLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gray-100">
       <header className="bg-ink-950 text-white">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-6">
-          <BrandLogo variant="dark" className="h-7" />
+          <BrandLogo variant="dark" className="h-9" />
           <nav className="flex items-center gap-1">
             {nav.map((n) => {
               const Icon = n.icon;

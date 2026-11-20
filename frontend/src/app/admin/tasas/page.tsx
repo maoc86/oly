@@ -254,7 +254,7 @@ export default function AdminTasasPage() {
                   disabled={saving}
                   className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${
                     isSelected
-                      ? "bg-brand-500 text-ink-900 cursor-default"
+                      ? "bg-brand-500 text-white cursor-default"
                       : "bg-gray-100 text-gray-700 hover:bg-brand-50 hover:text-brand-700 disabled:opacity-50"
                   }`}
                 >

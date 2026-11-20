@@ -50,7 +50,7 @@ export default async function HomePage() {
             className="absolute inset-0 opacity-40"
             style={{
               backgroundImage:
-                "radial-gradient(circle at 20% 15%, rgba(236,72,153,0.35), transparent 45%), radial-gradient(circle at 85% 0%, rgba(139,92,246,0.25), transparent 50%)",
+                "radial-gradient(circle at 20% 15%, rgba(198,93,59,0.35), transparent 45%), radial-gradient(circle at 85% 0%, rgba(176,138,86,0.25), transparent 50%)",
             }}
           />
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
@@ -69,7 +69,7 @@ export default async function HomePage() {
             <div className="mt-9 flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/productos"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 text-white rounded-xl font-semibold shadow-sm hover:bg-brand-400 hover:shadow-md transition-all"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 text-white rounded-xl font-semibold shadow-sm hover:bg-brand-600 hover:shadow-md transition-all"
               >
                 Ver tienda
                 <ArrowRight className="w-4 h-4" />

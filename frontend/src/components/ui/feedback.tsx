@@ -98,7 +98,7 @@ export function ConfirmHost() {
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
               state.danger
                 ? "bg-red-600 text-white hover:bg-red-500"
-                : "bg-brand-500 text-ink-900 hover:bg-brand-400"
+                : "bg-brand-500 text-white hover:bg-brand-600"
             }`}
           >
             {state.confirmLabel ?? "Confirmar"}

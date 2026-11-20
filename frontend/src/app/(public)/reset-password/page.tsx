@@ -113,7 +113,7 @@ function ResetPasswordForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-brand-500 text-ink-900 rounded-lg hover:bg-brand-400 disabled:opacity-50 font-semibold"
+              className="w-full py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 disabled:opacity-50 font-semibold"
             >
               {loading ? "Enviando..." : "Enviar enlace"}
             </button>
@@ -164,7 +164,7 @@ function ResetPasswordForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-brand-500 text-ink-900 rounded-lg hover:bg-brand-400 disabled:opacity-50 font-semibold"
+                className="w-full py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 disabled:opacity-50 font-semibold"
               >
                 {loading ? "Guardando..." : "Guardar contraseña"}
               </button>

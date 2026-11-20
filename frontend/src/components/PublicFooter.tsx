@@ -102,7 +102,7 @@ export function PublicFooter() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <Link href="/" className="inline-flex items-center" aria-label={config.company_name || "Oly Official"}>
-              <BrandLogo variant="dark" className="h-8" />
+              <BrandLogo variant="dark" className="h-10" />
             </Link>
             <p className="mt-4 text-sm text-gray-400 leading-relaxed max-w-sm">
               {config.footer_text}

@@ -319,7 +319,7 @@ export default function AdminFinanzasPage() {
               onClick={() => setTypeFilter(f.value)}
               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                 typeFilter === f.value
-                  ? "bg-brand-500 text-ink-900 border-brand-500"
+                  ? "bg-brand-500 text-white border-brand-500"
                   : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
               }`}
             >

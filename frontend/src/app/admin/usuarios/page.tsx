@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
@@ -193,7 +193,7 @@ function UserFormModal({
                   onClick={() => toggleRole(role)}
                   className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
                     on
-                      ? "bg-brand-500 text-ink-900 border-brand-500 font-semibold"
+                      ? "bg-brand-500 text-white border-brand-500 font-semibold"
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                   }`}
                 >
@@ -437,7 +437,7 @@ export default function AdminUsuariosPage() {
               onClick={() => setRoleFilter(value)}
               className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
                 roleFilter === value
-                  ? "bg-brand-500 text-ink-900 border-brand-500 font-semibold"
+                  ? "bg-brand-500 text-white border-brand-500 font-semibold"
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
               }`}
             >

@@ -101,7 +101,7 @@ export default function Navbar() {
             className="flex items-center gap-2.5 min-w-0 group"
             aria-label={config.company_name || "Oly Official"}
           >
-            <BrandLogo variant="dark" className="h-7 sm:h-8" />
+            <BrandLogo variant="dark" className="h-9 sm:h-11" />
           </Link>
 
           <div className="hidden md:flex items-center gap-1 ml-2">

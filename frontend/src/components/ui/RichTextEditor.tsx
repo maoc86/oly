@@ -111,14 +111,14 @@ export function RichTextEditor({ label, value, onChange, variables = [] }: RichT
           <button
             type="button"
             onClick={() => setMode("visual")}
-            className={`px-3 py-1.5 ${mode === "visual" ? "bg-brand-500 text-ink-900" : "text-gray-600 hover:bg-gray-50"}`}
+            className={`px-3 py-1.5 ${mode === "visual" ? "bg-brand-500 text-white" : "text-gray-600 hover:bg-gray-50"}`}
           >
             Visual
           </button>
           <button
             type="button"
             onClick={() => setMode("html")}
-            className={`px-3 py-1.5 ${mode === "html" ? "bg-brand-500 text-ink-900" : "text-gray-600 hover:bg-gray-50"}`}
+            className={`px-3 py-1.5 ${mode === "html" ? "bg-brand-500 text-white" : "text-gray-600 hover:bg-gray-50"}`}
           >
             HTML
           </button>

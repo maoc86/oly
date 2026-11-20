@@ -494,7 +494,7 @@ export default function TerminosContent() {
               <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:justify-center">
                 <Link
                   href="/productos"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-ink-900 hover:bg-brand-400 transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition-colors"
                 >
                   Explorar tienda
                 </Link>

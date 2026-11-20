@@ -11,7 +11,7 @@ export function Button({
   variant?: "primary" | "secondary" | "danger" | "ghost" | "light";
 }) {
   const styles = {
-    primary: "bg-brand-500 text-ink-900 hover:bg-brand-400",
+    primary: "bg-brand-500 text-white hover:bg-brand-600",
     secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50",
     danger: "bg-red-600 text-white hover:bg-red-500",
     ghost: "text-gray-600 hover:bg-gray-100",

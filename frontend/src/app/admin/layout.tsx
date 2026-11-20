@@ -154,7 +154,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className={`p-4 flex items-center ${collapsed ? "justify-center" : "justify-between"} gap-2`}>
           <Link href="/admin" className="min-w-0" aria-label="Oly Official">
-            <BrandLogo variant="dark" className={collapsed ? "h-6" : "h-8"} />
+            <BrandLogo variant="dark" className={collapsed ? "h-7" : "h-9"} />
             {!collapsed && <p className="text-xs text-gray-400 mt-1.5">Panel Admin</p>}
           </Link>
           <button

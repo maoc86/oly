@@ -7,7 +7,7 @@ export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 export const OG_ALT = "Oly Official — Ropa deportiva para mujeres";
 
-const PINK = "#EC4899";
+const TERRACOTTA = "#C65D3B";
 const TAGLINE = "Ropa deportiva para mujeres que entrenan sin límites.";
 const SITE_URL = "olyofficial.com";
 
@@ -48,14 +48,14 @@ export async function renderOgImage() {
             height: 560,
             display: "flex",
             backgroundImage:
-              "radial-gradient(circle, rgba(236,72,153,0.32) 0%, rgba(139,92,246,0.12) 45%, rgba(0,0,0,0) 72%)",
+              "radial-gradient(circle, rgba(198,93,59,0.35) 0%, rgba(176,138,86,0.18) 45%, rgba(0,0,0,0) 72%)",
           }}
         />
         {logoData ? (
           <img src={logoData} width={360} height={120} alt="Oly Official" style={{ objectFit: "contain" }} />
         ) : (
           <div style={{ display: "flex", alignItems: "baseline", fontSize: 96, fontWeight: 900, letterSpacing: -3, color: "#ffffff" }}>
-            Oly<span style={{ color: PINK }}>.</span>
+            Oly<span style={{ color: TERRACOTTA }}>.</span>
           </div>
         )}
         <div
@@ -78,7 +78,7 @@ export async function renderOgImage() {
             display: "flex",
             fontSize: 26,
             letterSpacing: 2,
-            color: PINK,
+            color: TERRACOTTA,
           }}
         >
           {SITE_URL}

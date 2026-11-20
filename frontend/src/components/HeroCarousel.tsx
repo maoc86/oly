@@ -135,7 +135,7 @@ export default function HeroCarousel({
                   {s.cta_text && s.cta_link && (
                     <Link
                       href={s.cta_link}
-                      className={`inline-flex items-center gap-2 bg-brand-500 text-ink-900 rounded-xl font-semibold shadow-sm hover:bg-brand-400 hover:shadow-md transition-all pointer-events-auto ${
+                      className={`inline-flex items-center gap-2 bg-brand-500 text-white rounded-xl font-semibold shadow-sm hover:bg-brand-600 hover:shadow-md transition-all pointer-events-auto ${
                         isBanner ? "mt-3 sm:mt-4 px-4 py-2 text-sm" : "mt-7 px-6 py-3"
                       }`}
                     >
