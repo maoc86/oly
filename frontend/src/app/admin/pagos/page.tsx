@@ -23,7 +23,7 @@ interface PaymentForm {
   account_number: string;
   account_note: string;
   is_active: boolean;
-  available_at_taquilla: boolean;
+  available_at_pos: boolean;
   is_cash: boolean;
 }
 
@@ -41,7 +41,7 @@ const emptyForm: PaymentForm = {
   account_number: "",
   account_note: "",
   is_active: true,
-  available_at_taquilla: false,
+  available_at_pos: false,
   is_cash: false,
 };
 
@@ -152,7 +152,7 @@ export default function AdminPagosPage() {
       account_number: p.account_number || "",
       account_note: p.account_note || "",
       is_active: p.is_active,
-      available_at_taquilla: p.available_at_taquilla ?? false,
+      available_at_pos: p.available_at_pos ?? false,
       is_cash: p.is_cash ?? false,
     });
     setModalOpen(true);
@@ -178,7 +178,7 @@ export default function AdminPagosPage() {
       account_number: form.account_number.trim() || undefined,
       account_note: form.account_note.trim() || undefined,
       is_active: form.is_active,
-      available_at_taquilla: form.available_at_taquilla,
+      available_at_pos: form.available_at_pos,
       is_cash: form.is_cash,
     };
     try {
@@ -294,9 +294,9 @@ export default function AdminPagosPage() {
                   </span>
                 </div>
 
-                {(p.available_at_taquilla || p.is_cash) && (
+                {(p.available_at_pos || p.is_cash) && (
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                    {p.available_at_taquilla && (
+                    {p.available_at_pos && (
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand-100 text-brand-800">
                         Taquilla
                       </span>
@@ -409,11 +409,11 @@ export default function AdminPagosPage() {
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input
                 type="checkbox"
-                checked={form.available_at_taquilla}
-                onChange={(e) => setForm((prev) => ({ ...prev, available_at_taquilla: e.target.checked }))}
+                checked={form.available_at_pos}
+                onChange={(e) => setForm((prev) => ({ ...prev, available_at_pos: e.target.checked }))}
                 className="w-4 h-4"
               />
-              Disponible para cobrar en el panel de taquilla
+              Disponible para cobrar en el POS
             </label>
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input

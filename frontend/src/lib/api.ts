@@ -1,5 +1,3 @@
-import { OrganizerAreaSeats, OrganizerSeat, OrganizerSeats, GuestTicket } from "./types";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Captura y persiste los parámetros UTM de la URL para atribución de campañas.
@@ -181,8 +179,8 @@ async function fetchAPI<T>(
 
 export const api = {
   get: <T>(path: string) => fetchAPI<T>(path),
-  post: <T>(path: string, body: unknown) =>
-    fetchAPI<T>(path, { method: "POST", body: JSON.stringify(body) }),
+  post: <T>(path: string, body?: unknown) =>
+    fetchAPI<T>(path, { method: "POST", body: body !== undefined ? JSON.stringify(body) : undefined }),
   put: <T>(path: string, body?: unknown) =>
     fetchAPI<T>(path, { method: "PUT", body: body ? JSON.stringify(body) : undefined }),
   patch: <T>(path: string, body: unknown) =>
@@ -229,14 +227,5 @@ export const api = {
     }
     return res.json() as Promise<T>;
   },
-  listGuests: (eventId: number) => fetchAPI<GuestTicket[]>(`/organizer/events/${eventId}/guests`),
-  createGuest: (eventId: number, data: any, sendEmail = false) =>
-    fetchAPI<GuestTicket>(`/organizer/events/${eventId}/guests?send_email=${sendEmail}`, { method: "POST", body: JSON.stringify(data) }),
-  deleteGuest: (eventId: number, guestId: number) =>
-    fetchAPI<{ success: boolean }>(`/organizer/events/${eventId}/guests/${guestId}`, { method: "DELETE" }),
-  sendGuestEmail: (eventId: number, guestId: number) =>
-    fetchAPI<{ success: boolean }>(`/organizer/events/${eventId}/guests/${guestId}/send`, { method: "POST" }),
-  organizerEvent: (id: number) => fetchAPI<any>(`/organizer/events/${id}`),
-  organizerEventSeats: (id: number) => fetchAPI<OrganizerSeats>(`/organizer/events/${id}/seats`),
 };
 

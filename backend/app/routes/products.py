@@ -16,6 +16,7 @@ from app.schemas import (
 )
 
 router = APIRouter(prefix="/products", tags=["products"])
+categories_router = APIRouter(prefix="/categories", tags=["categories"])
 
 
 def _stock(p: Product) -> int:
@@ -55,6 +56,18 @@ def product_to_detail(p: Product) -> ProductResponse:
         cost=p.cost,
         variants=[ProductVariantResponse.model_validate(v) for v in p.variants],
     )
+
+
+@categories_router.get("", response_model=list[CategoryResponse])
+def list_categories(db: Session = Depends(get_db)):
+    """Categorías activas para la navegación y filtros de la tienda."""
+    return [
+        CategoryResponse.model_validate(c)
+        for c in db.query(Category)
+        .filter(Category.is_active == True)  # noqa: E712
+        .order_by(Category.sort_order, Category.name)
+        .all()
+    ]
 
 
 @router.get("", response_model=list[ProductListResponse])

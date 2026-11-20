@@ -21,19 +21,17 @@ import {
 
 const ROLE_LABEL: Record<string, string> = {
   admin: "Administrador",
-  organizer: "Organizador",
-  taquilla: "Taquilla",
+  vendedor: "Vendedor",
   user: "Usuario",
 };
 
 const ROLE_BADGE: Record<string, string> = {
   admin: "bg-purple-100 text-purple-800",
-  organizer: "bg-blue-100 text-blue-800",
-  taquilla: "bg-amber-100 text-amber-800",
+  vendedor: "bg-amber-100 text-amber-800",
   user: "bg-gray-100 text-gray-700",
 };
 
-const ROLE_ORDER = ["admin", "organizer", "taquilla", "user"];
+const ROLE_ORDER = ["admin", "vendedor", "user"];
 
 function roleList(u: User): string[] {
   const roles = u.roles?.length ? u.roles : u.role ? [u.role] : [];
@@ -294,9 +292,8 @@ export default function AdminUsuariosPage() {
     const active = users.filter((u) => u.is_active).length;
     const inactive = total - active;
     const admins = users.filter((u) => roleList(u).includes("admin")).length;
-    const organizers = users.filter((u) => roleList(u).includes("organizer")).length;
-    const taquilleros = users.filter((u) => roleList(u).includes("taquilla")).length;
-    return { total, active, inactive, admins, organizers, taquilleros };
+    const vendedores = users.filter((u) => roleList(u).includes("vendedor")).length;
+    return { total, active, inactive, admins, vendedores };
   }, [users]);
 
   const filtered = useMemo(() => {
@@ -415,21 +412,12 @@ export default function AdminUsuariosPage() {
           </div>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
-          <span className="grid place-items-center w-9 h-9 rounded-lg bg-blue-50 text-blue-700">
-            <Users className="w-4 h-4" />
-          </span>
-          <div>
-            <p className="text-xs text-gray-500">Organizadores</p>
-            <p className="text-lg font-semibold text-gray-900">{stats.organizers}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
           <span className="grid place-items-center w-9 h-9 rounded-lg bg-amber-50 text-amber-700">
             <Users className="w-4 h-4" />
           </span>
           <div>
-            <p className="text-xs text-gray-500">Taquilleros</p>
-            <p className="text-lg font-semibold text-gray-900">{stats.taquilleros}</p>
+            <p className="text-xs text-gray-500">Vendedores</p>
+            <p className="text-lg font-semibold text-gray-900">{stats.vendedores}</p>
           </div>
         </div>
       </div>
@@ -440,8 +428,7 @@ export default function AdminUsuariosPage() {
             [
               ["", "Todos"],
               ["admin", "Admins"],
-              ["organizer", "Organizadores"],
-              ["taquilla", "Taquillas"],
+              ["vendedor", "Vendedores"],
               ["user", "Usuarios"],
             ] as const
           ).map(([value, label]) => (

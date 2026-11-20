@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_NAME = "TicketV";
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ticketve.com";
-const SITE_TITLE = "TicketV — Entradas para tus eventos";
+const SITE_NAME = "Oly Official";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://olyofficial.com";
+const SITE_TITLE = "Oly Official — Ropa deportiva para mujeres";
 const SITE_DESCRIPTION =
-  "Descubrí eventos y comprá tus entradas de forma fácil y segura. Boletos con QR, compra protegida y soporte cercano.";
+  "Ropa deportiva para mujeres que entrenan sin límites. Leggings, tops, conjuntos y más. Compra online con envío a toda Venezuela.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: ["eventos", "entradas", "boletos", "tickets", SITE_NAME],
+  keywords: ["ropa deportiva", "mujer", "leggings", "fitness", "oly", SITE_NAME],
   openGraph: {
     type: "website",
     locale: "es_ES",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0B0F",
+  themeColor: "#08080a",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

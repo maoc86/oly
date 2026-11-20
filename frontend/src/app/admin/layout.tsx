@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
-  LayoutDashboard, CalendarDays, MapPin, Users, CreditCard, Receipt, LogOut, Tags,
-  Ticket as TicketIcon, Banknote, Settings, Briefcase, Wallet, Mail, Menu, X, Activity,
-  Store, AlertCircle, Percent, Calculator, Search, ChevronLeft, ChevronRight,
+  LayoutDashboard, Users, CreditCard, Receipt, LogOut, Tags,
+  Settings, Wallet, Mail, Menu, X, Activity, Package, Boxes,
+  Percent, Truck, UserRound, Banknote, ChevronLeft, ChevronRight, Store,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
@@ -18,13 +18,13 @@ interface NavItem {
   label: string;
   icon: any;
   perm: string | null;
-  badgeKey?: "pending" | "abandoned";
+  badgeKey?: "pending";
   group: string;
 }
 
 const GROUPS = [
   { key: "general", label: "General" },
-  { key: "eventos", label: "Eventos" },
+  { key: "catalogo", label: "Catálogo" },
   { key: "ventas", label: "Ventas" },
   { key: "finanzas", label: "Finanzas" },
   { key: "usuarios", label: "Usuarios" },
@@ -34,43 +34,37 @@ const GROUPS = [
 const navItems: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, perm: null, group: "general" },
   { href: "/admin/trafico", label: "Tráfico", icon: Activity, perm: "traffic.view", group: "general" },
-  { href: "/admin/eventos", label: "Eventos", icon: CalendarDays, perm: "events.manage_all", group: "eventos" },
-  { href: "/admin/venues", label: "Venues y Estadios", icon: MapPin, perm: "venues.manage", group: "eventos" },
-  { href: "/admin/categorias", label: "Categorías", icon: Tags, perm: "categories.manage", group: "eventos" },
-  { href: "/admin/boletos", label: "Boletos", icon: TicketIcon, perm: "tickets.templates", group: "eventos" },
-  { href: "/admin/usuarios", label: "Usuarios", icon: Users, perm: "users.manage", group: "usuarios" },
-  { href: "/admin/organizadores", label: "Organizadores", icon: Briefcase, perm: "users.manage", group: "usuarios" },
-  { href: "/admin/taquillas", label: "Taquillas", icon: Store, perm: "users.manage", group: "usuarios" },
-  { href: "/admin/pagos", label: "Métodos de Pago", icon: CreditCard, perm: "payments.manage", group: "sistema" },
-  { href: "/admin/tasas", label: "Tasas de cambio", icon: Banknote, perm: "settings.manage", group: "finanzas" },
-  { href: "/admin/facturacion", label: "Facturación", icon: Receipt, perm: "finance.view_all", group: "ventas", badgeKey: "pending" },
-  { href: "/admin/compras-abandonadas", label: "Compras abandonadas", icon: AlertCircle, perm: "orders.view_all", group: "ventas", badgeKey: "abandoned" },
+  { href: "/admin/productos", label: "Productos", icon: Package, perm: "products.manage", group: "catalogo" },
+  { href: "/admin/inventario", label: "Inventario", icon: Boxes, perm: "products.manage", group: "catalogo" },
+  { href: "/admin/categorias", label: "Categorías", icon: Tags, perm: "categories.manage", group: "catalogo" },
+  { href: "/admin/envios", label: "Métodos de envío", icon: Truck, perm: "shipping.manage", group: "catalogo" },
+  { href: "/admin/pedidos", label: "Pedidos", icon: Receipt, perm: "orders.view_all", group: "ventas", badgeKey: "pending" },
   { href: "/admin/cupones", label: "Cupones", icon: Percent, perm: "coupons.manage", group: "ventas" },
-  { href: "/admin/presupuestos", label: "Presupuestos", icon: Calculator, perm: "quotes.manage", group: "ventas" },
+  { href: "/admin/clientes", label: "Clientes", icon: UserRound, perm: "orders.view_all", group: "ventas" },
   { href: "/admin/finanzas", label: "Finanzas", icon: Wallet, perm: "finance.view_all", group: "finanzas" },
+  { href: "/admin/tasas", label: "Tasas de cambio", icon: Banknote, perm: "settings.manage", group: "finanzas" },
+  { href: "/admin/usuarios", label: "Usuarios", icon: Users, perm: "users.manage", group: "usuarios" },
+  { href: "/admin/pagos", label: "Métodos de pago", icon: CreditCard, perm: "payments.manage", group: "sistema" },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings, perm: "settings.manage", group: "sistema" },
-  { href: "/admin/plantillas-correo", label: "Plantillas de Correo", icon: Mail, perm: "templates.manage", group: "sistema" },
+  { href: "/admin/plantillas-correo", label: "Plantillas de correo", icon: Mail, perm: "templates.manage", group: "sistema" },
 ];
 
 const BREADCRUMBS: Record<string, string[]> = {
   "/admin": ["Dashboard"],
   "/admin/trafico": ["Tráfico"],
-  "/admin/eventos": ["Eventos"],
-  "/admin/venues": ["Venues y Estadios"],
+  "/admin/productos": ["Productos"],
+  "/admin/inventario": ["Inventario"],
   "/admin/categorias": ["Categorías"],
-  "/admin/boletos": ["Boletos"],
-  "/admin/usuarios": ["Usuarios"],
-  "/admin/organizadores": ["Organizadores"],
-  "/admin/taquillas": ["Taquillas"],
-  "/admin/pagos": ["Métodos de Pago"],
-  "/admin/tasas": ["Tasas de cambio"],
-  "/admin/facturacion": ["Facturación"],
-  "/admin/compras-abandonadas": ["Compras abandonadas"],
+  "/admin/envios": ["Métodos de envío"],
+  "/admin/pedidos": ["Pedidos"],
   "/admin/cupones": ["Cupones"],
-  "/admin/presupuestos": ["Presupuestos"],
+  "/admin/clientes": ["Clientes"],
   "/admin/finanzas": ["Finanzas"],
+  "/admin/tasas": ["Tasas de cambio"],
+  "/admin/usuarios": ["Usuarios"],
+  "/admin/pagos": ["Métodos de pago"],
   "/admin/configuracion": ["Configuración"],
-  "/admin/plantillas-correo": ["Plantillas de Correo"],
+  "/admin/plantillas-correo": ["Plantillas de correo"],
 };
 
 function getInitials(name?: string | null) {
@@ -86,10 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [badges, setBadges] = useState<{ pending: number; abandoned: number }>({ pending: 0, abandoned: 0 });
-  const searchRef = useRef<HTMLInputElement>(null);
+  const [pending, setPending] = useState(0);
 
   useEffect(() => {
     try {
@@ -97,9 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (c === "1") setCollapsed(true);
       const g = localStorage.getItem("admin_sidebar_groups");
       if (g) setCollapsedGroups(JSON.parse(g));
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {
@@ -111,56 +100,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [collapsedGroups]);
 
   useEffect(() => {
-    let gPressed = false;
-    let gTimer: any = null;
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setSearchOpen(true);
-        return;
-      }
-      if (e.key === "Escape") {
-        setSearchOpen(false);
-        return;
-      }
-      if (isInput) return;
-      if (e.key.toLowerCase() === "g") {
-        gPressed = true;
-        if (gTimer) clearTimeout(gTimer);
-        gTimer = setTimeout(() => { gPressed = false; }, 800);
-        return;
-      }
-      if (gPressed) {
-        gPressed = false;
-        if (gTimer) clearTimeout(gTimer);
-        if (e.key.toLowerCase() === "d") router.push("/admin");
-        else if (e.key.toLowerCase() === "e") router.push("/admin/eventos");
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      if (gTimer) clearTimeout(gTimer);
-    };
-  }, [router]);
-
-  useEffect(() => {
-    if (searchOpen) setTimeout(() => searchRef.current?.focus(), 50);
-  }, [searchOpen]);
-
-  useEffect(() => {
     if (!auth.isAuthenticated) return;
     let cancelled = false;
     const load = async () => {
       try {
         const d = await api.get<any>("/admin/dashboard");
-        if (!cancelled) setBadges((b) => ({ ...b, pending: d?.pending_orders ?? 0 }));
-      } catch { /* ignore */ }
-      try {
-        const c = await api.get<any>("/admin/checkout-attempts/count");
-        if (!cancelled) setBadges((b) => ({ ...b, abandoned: c?.abandoned ?? 0 }));
+        if (!cancelled) setPending(d?.pending_orders ?? 0);
       } catch { /* ignore */ }
     };
     load();
@@ -177,24 +122,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     (i) => !i.perm || !hasPermissions || auth.hasPermission(i.perm)
   );
 
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return visibleItems;
-    const q = searchQuery.toLowerCase();
-    return visibleItems.filter((i) => i.label.toLowerCase().includes(q));
-  }, [visibleItems, searchQuery]);
-
   const grouped = useMemo(() => {
     const map: Record<string, NavItem[]> = {};
     for (const g of GROUPS) map[g.key] = [];
-    for (const item of filteredItems) {
-      if (map[item.group]) map[item.group].push(item);
-    }
+    for (const item of visibleItems) if (map[item.group]) map[item.group].push(item);
     return GROUPS.map((g) => ({ ...g, items: map[g.key] || [] })).filter((g) => g.items.length > 0);
-  }, [filteredItems]);
+  }, [visibleItems]);
 
-  const toggleGroup = (key: string) => {
-    setCollapsedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  const toggleGroup = (key: string) => setCollapsedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const initials = getInitials(auth.user?.name);
   const currentLabel = navItems.find((i) => i.href === pathname)?.label || "Admin";
@@ -218,15 +153,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         className={`fixed inset-y-0 left-0 z-40 bg-ink-950 text-white flex flex-col transform transition-all duration-200 ease-out lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} ${collapsed ? "w-16" : "w-64"}`}
       >
         <div className={`p-4 flex items-center ${collapsed ? "justify-center" : "justify-between"} gap-2`}>
-          <Link href="/admin" className="min-w-0" aria-label="TicketV">
+          <Link href="/admin" className="min-w-0" aria-label="Oly Official">
             <BrandLogo variant="dark" className={collapsed ? "h-6" : "h-8"} />
             {!collapsed && <p className="text-xs text-gray-400 mt-1.5">Panel Admin</p>}
           </Link>
-          {!collapsed && (
-            <button onClick={() => setMenuOpen(false)} aria-label="Cerrar menú" className="lg:hidden text-gray-400 hover:text-white p-1 -mr-1 -mt-1">
-              <X className="w-5 h-5" />
-            </button>
-          )}
           <button
             onClick={() => setCollapsed((c) => !c)}
             aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
@@ -235,22 +165,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
         </div>
-
-        {!collapsed && (
-          <div className="px-3 mb-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <input
-                ref={searchRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar... (Ctrl+K)"
-                className="w-full pl-8 pr-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-gray-200 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-              />
-            </div>
-          </div>
-        )}
 
         <nav className="flex-1 px-2 space-y-3 overflow-y-auto">
           {grouped.map((group) => (
@@ -269,7 +183,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   {group.items.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
-                    const badge = item.badgeKey ? badges[item.badgeKey] : 0;
+                    const badge = item.badgeKey === "pending" ? pending : 0;
                     return (
                       <Link
                         key={item.href}
@@ -286,11 +200,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         {!collapsed && (
                           <>
                             <span className="flex-1 truncate">{item.label}</span>
-                            {badge && badge > 0 ? (
+                            {badge > 0 && (
                               <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full bg-red-500 text-white">
                                 {badge > 99 ? "99+" : badge}
                               </span>
-                            ) : null}
+                            )}
                           </>
                         )}
                       </Link>
@@ -305,7 +219,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-3 border-t border-white/10">
           {!collapsed && (
             <div className="flex items-center gap-3 mb-3 px-2">
-              <div className="w-9 h-9 rounded-full bg-brand-500 text-ink-900 font-bold text-sm flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-brand-500 text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
                 {initials}
               </div>
               <div className="min-w-0 flex-1">
@@ -317,11 +231,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="space-y-1">
             <Link
               href="/"
-              title={collapsed ? "Ver sitio web" : undefined}
+              title={collapsed ? "Ver tienda" : undefined}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${collapsed ? "justify-center px-2" : ""}`}
             >
-              <TicketIcon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span>Ver sitio web</span>}
+              <Store className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && <span>Ver tienda</span>}
             </Link>
             <button
               onClick={() => { auth.logout(); router.push("/"); }}
@@ -354,46 +268,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SiteConfigProvider>{children}</SiteConfigProvider>
         </div>
       </main>
-
-      {searchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSearchOpen(false)} />
-          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200">
-              <Search className="w-4 h-4 text-gray-400" />
-              <input
-                ref={searchRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar sección..."
-                className="flex-1 text-sm outline-none"
-              />
-              <button onClick={() => setSearchOpen(false)} className="text-gray-400 hover:text-gray-700 text-xs">Esc</button>
-            </div>
-            <div className="max-h-64 overflow-y-auto">
-              {filteredItems.length === 0 ? (
-                <div className="p-4 text-sm text-gray-500">Sin resultados</div>
-              ) : (
-                filteredItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => { setSearchOpen(false); setSearchQuery(""); setMenuOpen(false); }}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Icon className="w-4 h-4 text-gray-400" />
-                      {item.label}
-                    </Link>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

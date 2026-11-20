@@ -1,14 +1,14 @@
+// ─── Tipos del frontend de Oly Official (tienda) ────────────────────
+
 export interface User {
   id: number;
   name: string;
   email: string;
   phone?: string;
   cedula?: string;
-  role: "admin" | "organizer" | "user" | "taquilla";
-  // Multi-rol y permisos efectivos (los devuelve la API en login/me).
+  role: "admin" | "vendedor" | "user";
   roles?: string[];
   permissions?: string[];
-  // Excepciones por usuario (para la matriz de permisos del admin).
   grants?: string[];
   denies?: string[];
   is_active: boolean;
@@ -27,20 +27,6 @@ export interface PermissionsCatalog {
   roles: string[];
 }
 
-/** Vendedor de taquilla (rol `taquilla`) con sus eventos asignados y sus ventas. */
-export interface StaffMember {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string;
-  is_active: boolean;
-  created_at?: string;
-  event_ids: number[];
-  event_titles: string[];
-  sales_count: number;
-  sales_total: number;
-}
-
 export interface Token {
   access_token: string;
   refresh_token: string;
@@ -51,213 +37,130 @@ export interface Token {
 export interface Category {
   id: number;
   name: string;
-  icon?: string;
+  slug?: string | null;
+  icon?: string | null;
+  description?: string | null;
+  image_url?: string | null;
+  sort_order?: number;
+  is_active?: boolean;
+  created_at?: string;
 }
 
-export interface Venue {
+export interface ProductVariant {
   id: number;
-  name: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  total_capacity: number;
-  created_at: string;
+  product_id: number;
+  sku?: string | null;
+  size?: string | null;
+  color?: string | null;
+  price_override?: number | null;
+  stock: number;
+  min_stock: number;
+  is_active: boolean;
 }
 
-export interface TicketType {
+export interface Product {
   id: number;
-  event_id: number;
+  sku?: string | null;
   name: string;
+  slug?: string | null;
+  description?: string | null;
   price: number;
-  individual_price?: number | null;
-  total_stock: number;
-  sold_stock: number;
-  guest_stock?: number;
-  group_size?: number;
-  has_seat_map?: boolean;
-  map_rows?: number;
-  map_cols?: number;
-  color?: string;
-  sale_start?: string;
-  sale_end?: string;
-  box_layout?: { top: number; right: number; bottom: number; left: number } | null;
+  wholesale_price?: number | null;
+  offer_price?: number | null;
+  offer_active?: boolean;
+  display_price: number;
+  cost?: number | null;
+  category_id?: number | null;
+  category?: { id: number; name: string } | null;
+  brand?: string | null;
+  gender?: string | null;
+  image_url?: string | null;
+  images?: string[] | null;
+  is_featured?: boolean;
+  is_new?: boolean;
+  is_active?: boolean;
+  stock?: number;
+  created_at?: string;
+  variants?: ProductVariant[];
 }
 
-export interface Event {
+export interface FavoriteResponse {
   id: number;
-  title: string;
-  description?: string;
-  start_date: string;
-  end_date: string;
-  venue_id?: number;
-  category_id?: number;
-  image_url?: string;
-  mobile_image_url?: string;
-  map_config?: Record<string, unknown> | null;
-  status: "draft" | "published" | "finished" | "cancelled";
-  created_by?: number;
-  organizer_id?: number;
-  // Personalización del evento (null/undefined = usa el global). El IVA es global.
-  platform_fee_percent?: number | null;
-  municipal_tax_percent?: number | null;
-  // Diseño del boleto digital asignado al evento (null = plantilla por defecto).
-  ticket_template_id?: number | null;
-  venue?: Venue;
-  category?: Category;
-  ticket_types: TicketType[];
-  created_at: string;
+  product_id: number;
+  created_at?: string;
+  product?: Product | null;
 }
 
-export interface Ticket {
+export interface InventoryMovement {
   id: number;
-  qr_code?: string;
-  status: "valid" | "used" | "cancelled";
-  scanned_at?: string;
-  created_at: string;
-  // Área y asiento del boleto (solo en áreas con mapa de asientos).
-  area_name?: string | null;
-  seat_label?: string | null;
-  seat_row?: number | null;
-  seat_number?: number | null;
+  product_id: number;
+  product_variant_id: number;
+  user_id?: number | null;
+  movement_type: string;
+  quantity: number;
+  previous_stock: number;
+  new_stock: number;
+  notes?: string | null;
+  reference?: string | null;
+  created_at?: string;
+  product_name?: string | null;
+  variant_label?: string | null;
+  user_name?: string | null;
 }
 
 export interface OrderItem {
   id: number;
-  ticket_type_id: number;
+  product_id: number;
+  product_variant_id: number;
   quantity: number;
   unit_price: number;
   subtotal: number;
-  seat_ids?: number[] | null;
-  tickets: Ticket[];
-  ticket_type_name?: string;
-  event_id?: number;
-  event_title?: string;
-  event_start?: string;
-  event_image?: string;
+  size?: string | null;
+  color?: string | null;
+  product_name?: string | null;
+  product_image?: string | null;
 }
 
 export interface Order {
   id: number;
   user_id: number;
-  total: number;
   subtotal: number;
-  service_fee: number;
+  discount: number;
   tax: number;
-  municipal_tax: number;
-  platform_fee: number;
+  shipping: number;
+  total: number;
   status: "pending" | "completed" | "cancelled";
-  payment_method_id?: number;
-  payment_reference?: string;
-  payment_receipt_url?: string;
-  // Snapshot del cobro: moneda, tasa aplicada e importe a pagar.
-  payment_currency?: string;
-  payment_rate?: number;
-  payment_total?: number;
-  payment_method_name?: string;
-  payment_method_type?: string;
-  user_name?: string;
-  user_email?: string;
-  user_phone?: string;
-  // Canal de venta: online (checkout) o taquilla (venta presencial).
-  channel: "online" | "taquilla";
-  sold_by_id?: number;
-  sold_by_name?: string;
-  buyer_name?: string;
-  buyer_cedula?: string;
-  buyer_phone?: string;
-  buyer_email?: string;
-  buyer_display_name?: string;
-  cash_session_id?: number;
+  payment_method_id?: number | null;
+  payment_reference?: string | null;
+  payment_receipt_url?: string | null;
+  coupon_id?: number | null;
+  coupon_code?: string | null;
+  discount_amount: number;
+  payment_currency?: string | null;
+  payment_rate?: number | null;
+  payment_total?: number | null;
+  payment_method_name?: string | null;
+  payment_method_type?: string | null;
+  user_name?: string | null;
+  user_email?: string | null;
+  user_phone?: string | null;
+  channel: "online" | "pos";
+  sold_by_id?: number | null;
+  sold_by_name?: string | null;
+  buyer_name?: string | null;
+  buyer_cedula?: string | null;
+  buyer_phone?: string | null;
+  buyer_email?: string | null;
+  buyer_display_name?: string | null;
+  cash_session_id?: number | null;
+  shipping_method_id?: number | null;
+  shipping_address?: string | null;
+  shipping_city?: string | null;
+  shipping_state?: string | null;
+  shipping_zip?: string | null;
+  notes?: string | null;
   items: OrderItem[];
-  created_at: string;
-}
-
-export interface Seat {
-  id: number;
-  row: number;
-  number: number;
-  seat_index: number;
-  status: "free" | "reserved" | "occupied" | "blocked";
-  reserved_by?: number;
-  reserved_until?: string;
-}
-
-export interface TicketSeats {
-  ticket_type: TicketType;
-  rows: number;
-  cols: number;
-  free_count: number;
-  occupied_count: number;
-  seats: Seat[];
-}
-
-export interface EventSeats {
-  event_id: number;
-  ticket_types: TicketSeats[];
-}
-
-export interface MapCell {
-  row: number;
-  col: number;
-  has_seat: boolean;
-  seat_id?: number | null;
-  status?: string | null;
-  reserved_by?: number | null;
-  reserved_until?: string | null;
-}
-
-export interface TicketMap {
-  ticket_type_id: number;
-  name: string;
-  rows: number;
-  cols: number;
-  cells: MapCell[];
-}
-
-/** Mapa de ventas del organizador: asiento sin datos del comprador. */
-export interface OrganizerSeat {
-  id: number;
-  row: number;
-  number: number;
-  seat_index: number;
-  status: "free" | "reserved" | "occupied" | "blocked";
-}
-
-export interface OrganizerAreaSeats {
-  ticket_type: TicketType;
-  rows: number;
-  cols: number;
-  has_seat_map: boolean;
-  free_count: number;
-  occupied_count: number;
-  reserved_count: number;
-  seats: OrganizerSeat[];
-  boxes?: any[];
-  total_seats?: number;
-  available_boxes?: number;
-  reserved_boxes?: number;
-  sold_boxes?: number;
-}
-
-export interface OrganizerSeats {
-  event_id: number;
-  areas: OrganizerAreaSeats[];
-}
-
-export interface GuestTicket {
-  id: number;
-  event_id: number;
-  ticket_type_id: number;
-  guest_name: string;
-  guest_email?: string | null;
-  guest_phone?: string | null;
-  quantity: number;
-  seat_ids?: number[] | null;
-  qr_code: string;
-  status: string;
-  created_by?: number | null;
-  sent_at?: string | null;
-  created_at?: string | null;
+  created_at?: string;
 }
 
 export interface PaymentMethod {
@@ -268,18 +171,56 @@ export interface PaymentMethod {
   currency: string;
   requires_reference: boolean;
   requires_receipt: boolean;
-  phone?: string;
-  email?: string;
-  cedula?: string;
-  bank_name?: string;
-  account_holder?: string;
-  account_number?: string;
-  account_note?: string;
-  config?: Record<string, unknown>;
-  // Taquilla: disponible para vender presencialmente y si es efectivo (cuadre de caja).
-  available_at_taquilla: boolean;
+  phone?: string | null;
+  email?: string | null;
+  cedula?: string | null;
+  bank_name?: string | null;
+  account_holder?: string | null;
+  account_number?: string | null;
+  account_note?: string | null;
+  config?: Record<string, unknown> | null;
+  available_at_pos: boolean;
   is_cash: boolean;
   created_at: string;
+}
+
+export interface ShippingMethod {
+  id: number;
+  name: string;
+  price: number;
+  currency: string;
+  description?: string | null;
+  estimated_days?: string | null;
+  is_active: boolean;
+  created_at?: string;
+}
+
+export interface Coupon {
+  id: number;
+  code: string;
+  type: "percentage" | "fixed";
+  value: number;
+  min_amount: number;
+  max_discount?: number | null;
+  usage_limit?: number | null;
+  used_count: number;
+  starts_at?: string | null;
+  expires_at?: string | null;
+  product_id?: number | null;
+  category_id?: number | null;
+  is_active: boolean;
+  created_at?: string;
+}
+
+export interface Customer {
+  id: number;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  cedula?: string | null;
+  address?: string | null;
+  notes?: string | null;
+  created_at?: string;
 }
 
 export interface HeroSlide {
@@ -299,14 +240,14 @@ export interface HeroSlide {
 }
 
 export interface DashboardStats {
-  total_events: number;
-  total_venues: number;
+  total_products: number;
+  total_categories: number;
   total_users: number;
-  total_organizers: number;
   total_orders: number;
   pending_orders: number;
   total_revenue: number;
-  total_tickets_sold: number;
+  total_items_sold: number;
+  low_stock: number;
   recent_orders: Order[];
 }
 
@@ -315,13 +256,13 @@ export interface FinanceEntry {
   type: "income" | "expense";
   amount: number;
   currency: string;
-  rate?: number;
+  rate?: number | null;
   amount_usd: number;
-  category?: string;
-  description?: string;
+  category?: string | null;
+  description?: string | null;
   date: string;
-  related_order_id?: number;
-  payment_method_id?: number;
+  related_order_id?: number | null;
+  payment_method_id?: number | null;
   created_at: string;
 }
 
@@ -330,8 +271,8 @@ export interface FinanceSummary {
   expense: number;
   balance: number;
   by_category: { category: string; type: string; total: number }[];
-  platform_commission?: number;
-  organizer_payout?: number;
+  total_sales?: number;
+  pending_payables?: number;
 }
 
 export interface FinanceAccountBalance {
@@ -355,36 +296,44 @@ export interface FinanceBalances {
   general: { income_usd: number; expense_usd: number; balance_usd: number };
 }
 
-export interface OrganizerEvent {
-  id: number;
-  title: string;
-  status: string;
-  start_date: string;
-  subtotal: number;
-  platform_fee: number;
-  municipal_tax: number;
-  tax: number;
-  net: number;
-  tickets_sold: number;
-  orders: number;
-}
-
-export interface OrganizerSummary {
+export interface Vendor {
   id: number;
   name: string;
-  email: string;
-  phone?: string;
+  category?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  rif?: string | null;
+  notes?: string | null;
   is_active: boolean;
-  created_at: string;
-  events: number;
-  subtotal: number;
-  platform_fee: number;
-  municipal_tax: number;
-  tax: number;
-  net: number;
-  tickets_sold: number;
-  orders: number;
-  events_detail?: OrganizerEvent[];
+}
+
+export interface Payable {
+  id: number;
+  vendor_id: number;
+  vendor_name?: string | null;
+  description?: string | null;
+  amount: number;
+  currency: string;
+  rate?: number | null;
+  amount_usd: number;
+  due_date?: string | null;
+  status: "pending" | "paid" | "cancelled";
+  created_at?: string;
+}
+
+export interface Payout {
+  id: number;
+  vendor_id: number;
+  vendor_name?: string | null;
+  amount: number;
+  currency: string;
+  rate?: number | null;
+  amount_usd: number;
+  date: string;
+  payment_method_id?: number | null;
+  reference?: string | null;
+  note?: string | null;
+  finance_entry_id?: number | null;
 }
 
 export interface EmailTemplate {
@@ -399,35 +348,7 @@ export interface EmailTemplate {
   updated_at: string;
 }
 
-// ─── Plantillas de boleto (diseños) ──────────────────
-export interface TicketTemplate {
-  id: number;
-  name: string;
-  description?: string;
-  brand_color: string;
-  accent_color: string;
-  text_color: string;
-  background_image_url?: string;
-  logo_url?: string;
-  footer_text?: string;
-  is_active: boolean;
-  is_default: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-/** Diseño del boleto resuelto para un evento (vista previa del comprador). */
-export interface TicketDesign {
-  brand_color: string;
-  accent_color: string;
-  text_color: string;
-  background_image_url?: string | null;
-  logo_url?: string | null;
-  footer_text?: string | null;
-  venue_name?: string | null;
-}
-
-// ─── Tráfico (panel de administración) ───────────────
+// ─── Tráfico ─────────────────────────────────────────
 export interface TrafficPoint {
   label: string;
   requests: number;
@@ -481,27 +402,23 @@ export interface TrafficStats {
   timezone_offset: number;
 }
 
-// ─── Taquilla (venta presencial) ─────────────────────
-export interface PosEvent {
+// ─── POS ─────────────────────────────────────────────
+export interface PosProduct {
   id: number;
-  title: string;
-  status: string;
-  start_date: string;
-  end_date: string;
-  venue_name?: string | null;
+  name: string;
+  sku?: string | null;
   image_url?: string | null;
+  display_price: number;
+  variants: ProductVariant[];
 }
 
 export interface PosCatalog {
-  event: PosEvent;
-  ticket_types: TicketType[];
+  products: PosProduct[];
 }
 
 export interface PosSaleItem {
-  ticket_type_id: number;
+  product_variant_id: number;
   quantity: number;
-  seat_ids: number[];
-  mode?: "box" | "seat";
 }
 
 export interface PosBuyer {
@@ -512,7 +429,6 @@ export interface PosBuyer {
 }
 
 export interface PosSalePayload {
-  event_id: number;
   items: PosSaleItem[];
   payment_method_id: number;
   reference?: string;
@@ -534,14 +450,12 @@ export interface CashSessionSummary {
   cash_sales: number;
   other_sales: number;
   orders: number;
-  tickets: number;
+  items: number;
   by_method: CashMethodTotal[];
 }
 
 export interface CashSession {
   id: number;
-  event_id: number;
-  event_title?: string | null;
   user_id: number;
   user_name?: string | null;
   status: "open" | "closed";

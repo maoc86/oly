@@ -3,25 +3,25 @@
 import {
   createContext, useContext, useSyncExternalStore, ReactNode, useCallback,
 } from "react";
-import { Event } from "./types";
 
-const CART_KEY = "ticketing:cart";
+const CART_KEY = "oly:cart";
 
-export interface CartItem {
+export interface CartLine {
+  variant_id: number;
+  product_id: number;
+  name: string;
+  image?: string;
+  size?: string;
+  color?: string;
+  price: number; // precio unitario en USD
   quantity: number;
-  seat_ids: number[];
-  // Áreas por box: "box" (se compra el box completo, precio por box) o "seat"
-  // (se compran sillas individuales, precio por silla). En el resto de áreas
-  // se omite y se cobra por entrada.
-  mode?: "box" | "seat";
 }
 
 export interface CartState {
-  event: Event | null;
-  items: Record<number, CartItem>;
+  lines: CartLine[];
 }
 
-const EMPTY: CartState = { event: null, items: {} };
+const EMPTY: CartState = { lines: [] };
 
 const listeners = new Set<() => void>();
 
@@ -38,17 +38,14 @@ function emitChange() {
 
 function readCart(): CartState {
   try {
-    const raw = sessionStorage.getItem(CART_KEY);
+    const raw = typeof window !== "undefined" ? localStorage.getItem(CART_KEY) : null;
     return raw ? (JSON.parse(raw) as CartState) : EMPTY;
   } catch {
     return EMPTY;
   }
 }
 
-// Snapshot inicial igual en servidor y cliente: el carrito vive en sessionStorage,
-// así que el SSR siempre arranca vacío y el cliente carga el suyo tras el hydration.
 let clientSnapshot: CartState = EMPTY;
-
 if (typeof window !== "undefined") {
   clientSnapshot = readCart();
 }
@@ -63,7 +60,9 @@ function getServerSnapshot() {
 
 interface CartContextType {
   cart: CartState;
-  setCart: (cart: CartState) => void;
+  addLine: (line: Omit<CartLine, "quantity">, quantity?: number) => void;
+  setQty: (variantId: number, quantity: number) => void;
+  removeLine: (variantId: number) => void;
   clearCart: () => void;
   itemsCount: number;
   total: number;
@@ -71,14 +70,16 @@ interface CartContextType {
 
 const Ctx = createContext<CartContextType>({
   cart: EMPTY,
-  setCart: () => {},
+  addLine: () => {},
+  setQty: () => {},
+  removeLine: () => {},
   clearCart: () => {},
   itemsCount: 0,
   total: 0,
 });
 
 function persist(cart: CartState) {
-  if (typeof window !== "undefined") sessionStorage.setItem(CART_KEY, JSON.stringify(cart));
+  if (typeof window !== "undefined") localStorage.setItem(CART_KEY, JSON.stringify(cart));
   clientSnapshot = cart;
   emitChange();
 }
@@ -86,23 +87,42 @@ function persist(cart: CartState) {
 export function CartProvider({ children }: { children: ReactNode }) {
   const cart = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const setCart = useCallback((c: CartState) => persist(c), []);
+  const addLine = useCallback((line: Omit<CartLine, "quantity">, quantity = 1) => {
+    const current = clientSnapshot;
+    const existing = current.lines.find((l) => l.variant_id === line.variant_id);
+    let lines: CartLine[];
+    if (existing) {
+      lines = current.lines.map((l) =>
+        l.variant_id === line.variant_id ? { ...l, quantity: l.quantity + quantity } : l
+      );
+    } else {
+      lines = [...current.lines, { ...line, quantity }];
+    }
+    persist({ lines });
+  }, []);
+
+  const setQty = useCallback((variantId: number, quantity: number) => {
+    const current = clientSnapshot;
+    if (quantity <= 0) {
+      persist({ lines: current.lines.filter((l) => l.variant_id !== variantId) });
+      return;
+    }
+    persist({
+      lines: current.lines.map((l) => (l.variant_id === variantId ? { ...l, quantity } : l)),
+    });
+  }, []);
+
+  const removeLine = useCallback((variantId: number) => {
+    persist({ lines: clientSnapshot.lines.filter((l) => l.variant_id !== variantId) });
+  }, []);
+
   const clearCart = useCallback(() => persist(EMPTY), []);
 
-  const itemsCount = Object.values(cart.items).reduce((a, i) => a + i.quantity, 0);
-
-  const total = (cart.event?.ticket_types || []).reduce((sum, tt) => {
-    const item = cart.items[tt.id];
-    if (!item || item.quantity <= 0) return sum;
-    if (item.mode === "seat") {
-      return sum + item.quantity * Number(tt.individual_price ?? tt.price);
-    }
-    const groupSize = Math.max(1, tt.group_size || 1);
-    return sum + (item.quantity / groupSize) * Number(tt.price);
-  }, 0);
+  const itemsCount = cart.lines.reduce((a, l) => a + l.quantity, 0);
+  const total = cart.lines.reduce((sum, l) => sum + l.price * l.quantity, 0);
 
   return (
-    <Ctx.Provider value={{ cart, setCart, clearCart, itemsCount, total }}>
+    <Ctx.Provider value={{ cart, addLine, setQty, removeLine, clearCart, itemsCount, total }}>
       {children}
     </Ctx.Provider>
   );

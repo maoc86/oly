@@ -3,25 +3,16 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-/** Tamaño estándar de la tarjeta social (Open Graph / Twitter). */
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
-export const OG_ALT = "TicketV — Descubrí eventos y comprá tus entradas";
+export const OG_ALT = "Oly Official — Ropa deportiva para mujeres";
 
-const AMBER = "#FFB600";
-const TAGLINE = "Descubrí eventos y comprá tus entradas de forma fácil y segura.";
-const SITE_URL = "ticketve.com";
+const PINK = "#EC4899";
+const TAGLINE = "Ropa deportiva para mujeres que entrenan sin límites.";
+const SITE_URL = "olyofficial.com";
 
-/**
- * Genera la tarjeta social del sitio (fondo oscuro con glow ámbar + logo).
- * Se usa tanto para `opengraph-image` como para `twitter-image`.
- */
 export async function renderOgImage() {
-  const [font, logo] = await Promise.all([
-    readFile(join(process.cwd(), "src/app/fonts/GeistSans-Regular.ttf")),
-    readFile(join(process.cwd(), "public/brand/logo-ticketv-on-dark.png")),
-  ]);
-  const logoData = `data:image/png;base64,${logo.toString("base64")}`;
+  const font = await readFile(join(process.cwd(), "src/app/fonts/GeistSans-Regular.ttf"));
 
   return new ImageResponse(
     (
@@ -33,9 +24,9 @@ export async function renderOgImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#0B0B0F",
+          backgroundColor: "#08080A",
           backgroundImage:
-            "linear-gradient(135deg, #0B0B0F 0%, #141419 55%, #1E1809 100%)",
+            "linear-gradient(135deg, #08080A 0%, #14141A 55%, #2A0E1E 100%)",
           position: "relative",
           padding: "0 90px",
         }}
@@ -49,17 +40,19 @@ export async function renderOgImage() {
             height: 560,
             display: "flex",
             backgroundImage:
-              "radial-gradient(circle, rgba(255,182,0,0.32) 0%, rgba(255,182,0,0.10) 45%, rgba(255,182,0,0) 72%)",
+              "radial-gradient(circle, rgba(236,72,153,0.32) 0%, rgba(139,92,246,0.12) 45%, rgba(0,0,0,0) 72%)",
           }}
         />
-        <img src={logoData} width={520} height={177} alt="" />
+        <div style={{ display: "flex", alignItems: "baseline", fontSize: 96, fontWeight: 900, letterSpacing: -3, color: "#ffffff" }}>
+          Oly<span style={{ color: PINK }}>.</span>
+        </div>
         <div
           style={{
-            marginTop: 46,
+            marginTop: 40,
             width: 900,
             display: "flex",
             justifyContent: "center",
-            fontSize: 36,
+            fontSize: 34,
             lineHeight: 1.4,
             color: "#D4D4D8",
             textAlign: "center",
@@ -73,7 +66,7 @@ export async function renderOgImage() {
             display: "flex",
             fontSize: 26,
             letterSpacing: 2,
-            color: AMBER,
+            color: PINK,
           }}
         >
           {SITE_URL}

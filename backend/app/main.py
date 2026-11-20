@@ -70,6 +70,7 @@ async def security_headers(request: Request, call_next):
 # Público
 app.include_router(auth.router)
 app.include_router(products.router)
+app.include_router(products.categories_router)
 app.include_router(favorites.router)
 app.include_router(orders.router)
 app.include_router(coupons.router)

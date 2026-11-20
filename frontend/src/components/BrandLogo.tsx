@@ -2,35 +2,32 @@
 
 import { useSiteConfig, isSet } from "@/lib/siteConfig";
 
-const FALLBACK = {
-  // Variante con letras blancas: para superficies oscuras (navbar, footer).
-  dark: "/brand/logo-ticketv-on-dark.png",
-  // Variante con letras negras: para superficies claras.
-  light: "/brand/logo-ticketv-on-light.png",
-};
-
 /**
  * Logo de la marca. Si el admin subió un logo en Configuración se usa ese;
- * si no, cae al asset por defecto de TicketV según la superficie donde va.
+ * si no, se muestra un wordmark tipográfico de Oly.
  */
 export default function BrandLogo({
   variant = "dark",
   className = "h-8",
 }: {
-  /** Fondo sobre el que se apoya el logo. */
   variant?: "dark" | "light";
-  /** Alto del logo (clases de Tailwind). */
   className?: string;
 }) {
   const { config } = useSiteConfig();
-  const src = isSet(config.company_logo) ? config.company_logo : FALLBACK[variant];
+  const src = isSet(config.company_logo) ? config.company_logo : null;
 
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={src} alt={config.company_name || "Oly Official"} className={`w-auto object-contain ${className}`} />
+    );
+  }
+
+  const textColor = variant === "dark" ? "text-white" : "text-ink-900";
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={config.company_name || "TicketV"}
-      className={`w-auto object-contain ${className}`}
-    />
+    <span className={`inline-flex items-baseline font-black tracking-tight leading-none select-none ${className}`}>
+      <span className={`text-xl sm:text-2xl uppercase ${textColor}`}>Oly</span>
+      <span className="text-brand-500 text-xl sm:text-2xl">.</span>
+    </span>
   );
 }

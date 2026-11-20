@@ -1,3 +1,6 @@
+import re
+import unicodedata
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -8,6 +11,26 @@ from app.utils.auth import require_permission
 from app.models import User
 
 router = APIRouter(prefix="/admin/categories", tags=["admin-categories"])
+
+
+def slugify(name: str) -> str:
+    name = unicodedata.normalize("NFKD", name or "").encode("ascii", "ignore").decode("ascii")
+    name = name.lower().strip()
+    name = re.sub(r"[^a-z0-9]+", "-", name)
+    return name.strip("-")
+
+
+def _ensure_slug(db: Session, category: Category) -> None:
+    """Genera un slug único a partir del nombre si no se proveyó uno."""
+    if category.slug and category.slug.strip():
+        return
+    base = slugify(category.name) or "categoria"
+    slug = base
+    n = 1
+    while db.query(Category).filter(Category.slug == slug, Category.id != category.id).first():
+        n += 1
+        slug = f"{base}-{n}"
+    category.slug = slug
 
 
 @router.get("", response_model=list[CategoryResponse])
@@ -25,6 +48,7 @@ def create_category(
     current_user: User = Depends(require_permission("categories.manage")),
 ):
     category = Category(**data.model_dump())
+    _ensure_slug(db, category)
     db.add(category)
     try:
         db.commit()
@@ -47,6 +71,7 @@ def update_category(
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
     for field, value in data.model_dump().items():
         setattr(category, field, value)
+    _ensure_slug(db, category)
     try:
         db.commit()
     except IntegrityError:

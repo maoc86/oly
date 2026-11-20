@@ -14,6 +14,8 @@ const SOCIAL_PATHS: Record<string, string> = {
   x: "M17.5 3h3l-6.6 7.5L21.8 21h-5.9l-4.6-6-5.3 6H3l7-8L2.5 3h6l4.2 5.5L17.5 3zm-1 16h1.7L7.6 4.7H5.8L16.5 19z",
   facebook:
     "M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.3-1.5 1.6-1.5h1.6V3.6c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.3H7.5V13h2.8v8h3.2z",
+  tiktok:
+    "M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z",
 };
 
 function SocialLinks({
@@ -21,12 +23,13 @@ function SocialLinks({
   className = "",
   iconClass = "w-4 h-4",
 }: {
-  config: { social_instagram: string; social_facebook: string; social_x: string };
+  config: { social_instagram: string; social_facebook: string; social_tiktok: string; social_x: string };
   className?: string;
   iconClass?: string;
 }) {
   const links = [
     { key: "social_instagram", icon: "instagram", label: "Instagram" },
+    { key: "social_tiktok", icon: "tiktok", label: "TikTok" },
     { key: "social_facebook", icon: "facebook", label: "Facebook" },
     { key: "social_x", icon: "x", label: "X" },
   ].filter((l) => isSet(config[l.key as keyof typeof config]));
@@ -42,7 +45,7 @@ function SocialLinks({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={l.label}
-          className="grid place-items-center w-9 h-9 rounded-full bg-white/5 text-gray-400 hover:bg-gradient-to-br hover:from-brand-500 hover:to-accent-500 hover:text-ink-900 transition-all duration-200"
+          className="grid place-items-center w-9 h-9 rounded-full bg-white/5 text-gray-400 hover:bg-gradient-to-br hover:from-brand-500 hover:to-accent-500 hover:text-white transition-all duration-200"
         >
           <svg viewBox="0 0 24 24" className={iconClass} fill="currentColor" aria-hidden="true">
             <path d={SOCIAL_PATHS[l.icon]} />
@@ -55,7 +58,7 @@ function SocialLinks({
 
 export function PublicFooter() {
   const { config } = useSiteConfig();
-  const { isAdmin, isOrganizer, isTaquilla } = useAuth();
+  const { isAdmin, isVendedor } = useAuth();
   const year = new Date().getFullYear();
 
   const contacto = [
@@ -71,17 +74,14 @@ export function PublicFooter() {
   ].filter((c) => isSet(c.value));
 
   const enlaces = [
-    { label: "Explorar eventos", href: "/eventos" },
-    { label: "Mis boletos", href: "/boletos" },
+    { label: "Ver productos", href: "/productos" },
+    { label: "Mis pedidos", href: "/pedidos" },
     { label: "Términos y condiciones", href: "/terminos" },
   ];
 
   const cuenta = [
-    ...(isOrganizer && !isAdmin
-      ? [{ label: "Mi panel", href: "/organizador" }]
-      : []),
-    ...(isTaquilla
-      ? [{ label: "Mi taquilla", href: "/taquilla" }]
+    ...(isVendedor
+      ? [{ label: "Punto de venta", href: "/pos" }]
       : []),
     ...(isAdmin
       ? [{ label: "Panel de administración", href: "/admin" }]
@@ -101,7 +101,7 @@ export function PublicFooter() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 lg:pt-16 pb-8">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <Link href="/" className="inline-flex items-center" aria-label={config.company_name || "TicketV"}>
+            <Link href="/" className="inline-flex items-center" aria-label={config.company_name || "Oly Official"}>
               <BrandLogo variant="dark" className="h-8" />
             </Link>
             <p className="mt-4 text-sm text-gray-400 leading-relaxed max-w-sm">

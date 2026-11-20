@@ -12,8 +12,7 @@ interface AuthContextType {
   updateUser: (user: User) => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isOrganizer: boolean;
-  isTaquilla: boolean;
+  isVendedor: boolean;
   /** Roles del usuario (multi-rol). */
   roles: string[];
   /** Permisos efectivos (roles + concesiones - denegaciones). */
@@ -146,8 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateUser,
         isAuthenticated: !!user,
         isAdmin: hasPermission("admin.access") || hasRole("admin"),
-        isOrganizer: hasPermission("events.manage_own") || hasRole("organizer"),
-        isTaquilla: hasPermission("pos.sell") || hasPermission("pos.access") || hasRole("taquilla"),
+        isVendedor: hasPermission("pos.sell") || hasPermission("pos.access") || hasRole("vendedor"),
         roles,
         permissions,
         hasRole,

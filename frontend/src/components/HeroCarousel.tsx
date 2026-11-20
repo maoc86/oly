@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { HeroSlide } from "@/lib/types";
-import CoverImage from "@/components/CoverImage";
+import { normalizeImageUrl } from "@/lib/images";
 
 const DEFAULT_TRANSITION_SECONDS = 6;
 const DEFAULT_HEIGHT = 600;
@@ -86,17 +86,16 @@ export default function HeroCarousel({
                 aria-label={s.title || "Ir al enlace"}
               />
             ) : null}
-            <CoverImage
-              desktopSrc={s.image_url}
-              mobileSrc={s.mobile_image_url}
-              alt={s.title}
-              eager={i === 0}
-              priority={i === 0}
-              sizes="100vw"
-              className={`transition-transform duration-[7000ms] ease-out ${
-                i === safeIndex ? "scale-105" : "scale-100"
-              }`}
-            />
+            <div className="absolute inset-0 z-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={normalizeImageUrl(s.image_url) ?? undefined}
+                alt={s.title}
+                className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[7000ms] ease-out ${
+                  i === safeIndex ? "scale-105" : "scale-100"
+                }`}
+              />
+            </div>
             <div
               className="absolute inset-0 z-[1]"
               style={{

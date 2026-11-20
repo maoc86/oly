@@ -3,14 +3,6 @@
 :root {
   --background: #ffffff;
   --foreground: #0f0f13;
-  /* Tamaño de cada silla en los mapas de selección (cuadrado). */
-  --seat-size: 26px;
-}
-
-@media (min-width: 640px) {
-  :root {
-    --seat-size: 30px;
-  }
 }
 
 @theme {
@@ -19,29 +11,30 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Paleta de marca TicketV (amarillo). El amarillo siempre va con texto
-     oscuro encima; para texto amarillo sobre fondo claro usar brand-700/800. */
-  --color-brand-50: #fffdf2;
-  --color-brand-100: #fff6cc;
-  --color-brand-200: #ffec99;
-  --color-brand-300: #ffe066;
-  --color-brand-400: #ffd12e;
-  --color-brand-500: #ffb800;
-  --color-brand-600: #e6a100;
-  --color-brand-700: #b87d00;
-  --color-brand-800: #8a5e00;
-  --color-brand-900: #5c3e00;
+  /* Paleta de marca Oly (magenta deportivo). El magenta va con texto blanco
+     encima en tonos 500-700; para texto sobre fondo claro usar brand-700/800. */
+  --color-brand-50: #fdf2f8;
+  --color-brand-100: #fce7f3;
+  --color-brand-200: #fbcfe8;
+  --color-brand-300: #f9a8d4;
+  --color-brand-400: #f472b6;
+  --color-brand-500: #ec4899;
+  --color-brand-600: #db2777;
+  --color-brand-700: #be185d;
+  --color-brand-800: #9d174d;
+  --color-brand-900: #831843;
+  --color-brand-950: #500724;
 
-  /* Acento naranja (energía, gradientes amarillo -> naranja) */
-  --color-accent-100: #fff2e0;
-  --color-accent-200: #ffe0b8;
-  --color-accent-400: #ffb04d;
-  --color-accent-500: #ff8a00;
-  --color-accent-600: #e67800;
-  --color-accent-700: #b85f00;
-  --color-accent-800: #8a4700;
+  /* Acento violeta (gradientes magenta -> violeta). */
+  --color-accent-100: #ede9fe;
+  --color-accent-300: #c4b5fd;
+  --color-accent-400: #a78bfa;
+  --color-accent-500: #8b5cf6;
+  --color-accent-600: #7c3aed;
+  --color-accent-700: #6d28d9;
+  --color-accent-800: #5b21b6;
 
-  /* Negro de estructura (navbar, footer, barra de compra). */
+  /* Negro de estructura (navbar, footer). */
   --color-ink-50: #f7f7f8;
   --color-ink-100: #eeeef0;
   --color-ink-200: #e2e2e6;

@@ -83,6 +83,10 @@ Ver [`deploy/`](./deploy) y el runbook de despliegue para VPS con Docker + Caddy
 
 ## Estado
 
-El backend (API) está funcional de punta a punta. El frontend (tienda pública,
-panel admin y POS) está en desarrollo. Ver [`PLAN.md`](./PLAN.md) para el detalle
-del roadmap.
+- **Backend (API):** funcional de punta a punta (productos, variantes, inventario,
+  órdenes, POS, finanzas, tasas, cupones, envíos, clientes).
+- **Frontend:** tienda pública (home, catálogo, detalle con talla/color, carrito,
+  checkout, pedidos, favoritos), panel admin (productos, inventario, pedidos,
+  finanzas, tasas, envíos, clientes, cupones, configuración) y POS (venta + caja).
+
+Ver [`PLAN.md`](./PLAN.md) para el detalle del roadmap y las mejoras pendientes.

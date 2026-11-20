@@ -19,11 +19,6 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "api.ticketve.com",
-        pathname: "/uploads/**",
-      },
-      {
         protocol: "http",
         hostname: "localhost",
         port: "8000",
@@ -31,7 +26,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "ticketve.com",
+        hostname: "api.olyofficial.com",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "olyofficial.com",
         pathname: "/uploads/**",
       },
     ],

@@ -22,8 +22,8 @@ interface Section {
 
 export default function TerminosContent() {
   const { config } = useSiteConfig();
-  const company = config.company_name || "TicketV";
-  const email = config.company_email || "soporte@ticketv.com";
+  const company = config.company_name || "Oly Official";
+  const email = config.company_email || "hola@olyofficial.com";
 
   const sections: Section[] = [
     {
@@ -500,10 +500,10 @@ export default function TerminosContent() {
               </p>
               <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:justify-center">
                 <Link
-                  href="/eventos"
+                  href="/productos"
                   className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-ink-900 hover:bg-brand-400 transition-colors"
                 >
-                  Explorar eventos
+                  Explorar tienda
                 </Link>
                 <a
                   href={`mailto:${email}`}

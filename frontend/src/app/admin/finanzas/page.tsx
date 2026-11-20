@@ -192,7 +192,7 @@ export default function AdminFinanzasPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Finanzas</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {tab === "caja" ? "Libro de caja: ingresos, egresos y saldo por cuenta." : "Cuentas por pagar: organizadores y proveedores."}
+            {tab === "caja" ? "Libro de caja: ingresos, egresos y saldo por cuenta." : "Cuentas por pagar: proveedores y acreedores."}
           </p>
         </div>
         {tab === "caja" && (

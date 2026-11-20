@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   LogOut, LayoutDashboard, Search,
-  Megaphone, Menu, X, ShoppingCart,
+  Megaphone, Menu, X, ShoppingBag,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
@@ -13,7 +13,6 @@ import { useSiteConfig, isSet } from "@/lib/siteConfig";
 import CurrencySwitcher from "@/components/CurrencySwitcher";
 import BrandLogo from "@/components/BrandLogo";
 
-/** Avatar con iniciales, para no repetir el nombre completo en la barra. */
 function initials(name?: string) {
   if (!name) return "?";
   const parts = name.trim().split(/\s+/).slice(0, 2);
@@ -21,7 +20,7 @@ function initials(name?: string) {
 }
 
 export default function Navbar() {
-  const { user, logout, isAuthenticated, isAdmin, isOrganizer, isTaquilla } = useAuth();
+  const { user, logout, isAuthenticated, isAdmin, isVendedor } = useAuth();
   const { config } = useSiteConfig();
   const { itemsCount } = useCart();
   const pathname = usePathname();
@@ -37,11 +36,10 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // El menu movil se cierra desde los enlaces (onClick) y al buscar.
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     const q = query.trim();
-    router.push(q ? `/eventos?search=${encodeURIComponent(q)}` : "/eventos");
+    router.push(q ? `/productos?search=${encodeURIComponent(q)}` : "/productos");
     setQuery("");
     setMenuOpen(false);
   }
@@ -51,28 +49,28 @@ export default function Navbar() {
   const navLink = (active: boolean) =>
     `px-3 py-2 rounded-full text-sm transition-colors ${
       active
-        ? "bg-brand-500 text-ink-900 font-semibold"
+        ? "bg-brand-500 text-white font-semibold"
         : "text-gray-400 hover:text-white hover:bg-white/5"
     }`;
 
   const navLinks = [
-    { href: "/", label: "Eventos", active: pathname === "/" },
-    { href: "/eventos", label: "Explorar", active: pathname.startsWith("/eventos") },
+    { href: "/", label: "Inicio", active: pathname === "/" },
+    { href: "/productos", label: "Tienda", active: pathname.startsWith("/productos") || pathname.startsWith("/producto") },
     ...(isAuthenticated
-      ? [{ href: "/boletos", label: "Mis boletos", active: pathname.startsWith("/boletos") }]
+      ? [
+          { href: "/pedidos", label: "Mis pedidos", active: pathname.startsWith("/pedidos") },
+          { href: "/favoritos", label: "Favoritos", active: pathname.startsWith("/favoritos") },
+        ]
       : []),
-    ...(isTaquilla
-      ? [{ href: "/taquilla", label: "Taquilla", active: pathname.startsWith("/taquilla") }]
-      : []),
-    ...(isOrganizer && !isAdmin
-      ? [{ href: "/organizador", label: "Mi panel", active: pathname.startsWith("/organizador") }]
+    ...(isVendedor
+      ? [{ href: "/pos", label: "POS", active: pathname.startsWith("/pos") }]
       : []),
   ];
 
   return (
     <header className="sticky top-0 z-50">
       {showAnnouncement && (
-        <div className="bg-gradient-to-r from-brand-500 via-brand-400 to-accent-500 text-ink-900">
+        <div className="bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-center gap-2 text-center">
             <Megaphone className="w-3.5 h-3.5 flex-shrink-0" />
             {config.announcement_link && isSet(config.announcement_link) ? (
@@ -101,7 +99,7 @@ export default function Navbar() {
             href="/"
             onClick={() => setMenuOpen(false)}
             className="flex items-center gap-2.5 min-w-0 group"
-            aria-label={config.company_name || "TicketV"}
+            aria-label={config.company_name || "Oly Official"}
           >
             <BrandLogo variant="dark" className="h-7 sm:h-8" />
           </Link>
@@ -121,8 +119,8 @@ export default function Navbar() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar eventos..."
-                aria-label="Buscar eventos"
+                placeholder="Buscar productos..."
+                aria-label="Buscar productos"
                 className="w-full pl-10 pr-4 py-2 text-sm text-white placeholder:text-gray-500 bg-white/5 hover:bg-white/10 focus:bg-white/10 rounded-full border border-transparent focus:border-brand-400/60 focus:ring-2 focus:ring-brand-500/20 transition-colors"
               />
             </div>
@@ -130,13 +128,13 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
             <Link
-              href="/checkout"
-              aria-label={`Carrito, ${itemsCount} entradas`}
+              href="/carrito"
+              aria-label={`Carrito, ${itemsCount} artículos`}
               className="relative inline-flex items-center justify-center p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
             >
-              <ShoppingCart className="w-5 h-5" />
+              <ShoppingBag className="w-5 h-5" />
               {itemsCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 grid place-items-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-brand-500 text-ink-900 text-[10px] font-bold shadow-sm shadow-brand-500/30">
+                <span className="absolute -top-0.5 -right-0.5 grid place-items-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-brand-500 text-white text-[10px] font-bold shadow-sm shadow-brand-500/30">
                   {itemsCount}
                 </span>
               )}
@@ -162,7 +160,7 @@ export default function Navbar() {
                   title="Mi perfil"
                   className="inline-flex items-center gap-2 px-1.5 sm:px-2 py-1.5 rounded-full hover:bg-white/5 transition-colors"
                 >
-                  <span className="grid place-items-center w-7 h-7 rounded-full bg-brand-500 text-ink-900 text-xs font-semibold">
+                  <span className="grid place-items-center w-7 h-7 rounded-full bg-brand-500 text-white text-xs font-semibold">
                     {initials(user?.name)}
                   </span>
                   <span className="hidden lg:inline text-sm font-medium text-gray-300 max-w-28 truncate">
@@ -188,7 +186,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/registro"
-                  className="px-4 py-2 text-sm font-semibold text-ink-900 bg-brand-500 rounded-lg shadow-lg shadow-brand-500/25 hover:bg-brand-400 hover:shadow-brand-500/40 transition-all"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-brand-600 rounded-lg shadow-lg shadow-brand-500/25 hover:bg-brand-500 transition-all"
                 >
                   Registrarse
                 </Link>
@@ -217,8 +215,8 @@ export default function Navbar() {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar eventos..."
-                  aria-label="Buscar eventos"
+                  placeholder="Buscar productos..."
+                  aria-label="Buscar productos"
                   className="w-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-gray-500 bg-white/5 focus:bg-white/10 rounded-full border border-transparent focus:border-brand-400/60 focus:ring-2 focus:ring-brand-500/20 transition-colors"
                 />
               </div>
@@ -232,7 +230,7 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(false)}
                   className={`px-3 py-2.5 rounded-lg text-sm transition-colors ${
                     l.active
-                      ? "bg-brand-500 text-ink-900 font-semibold"
+                      ? "bg-brand-500 text-white font-semibold"
                       : "text-gray-300 hover:bg-white/5 hover:text-white"
                   }`}
                 >
@@ -245,7 +243,7 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(false)}
                   className="px-3 py-2.5 rounded-lg text-sm text-gray-300 hover:bg-white/5 hover:text-white"
                 >
-                  Panel de administracion
+                  Panel de administración
                 </Link>
               )}
               {!isAuthenticated && (
@@ -260,7 +258,7 @@ export default function Navbar() {
                   <Link
                     href="/registro"
                     onClick={() => setMenuOpen(false)}
-                    className="px-3 py-2.5 rounded-lg text-sm font-semibold text-ink-900 bg-brand-500 text-center hover:bg-brand-400 transition-colors"
+                    className="px-3 py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-600 text-center hover:bg-brand-500 transition-colors"
                   >
                     Registrarse
                   </Link>

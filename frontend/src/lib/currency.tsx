@@ -5,7 +5,7 @@ import {
 } from "react";
 import { api } from "./api";
 
-const CURRENCY_KEY = "ticketing:currency";
+const CURRENCY_KEY = "oly:currency";
 export type Currency = "USD" | "VES";
 
 const currencyListeners = new Set<() => void>();
