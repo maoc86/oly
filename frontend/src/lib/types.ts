@@ -445,6 +445,12 @@ export interface CashMethodTotal {
   count: number;
 }
 
+export interface CashCurrencyTotal {
+  currency: string;
+  total: number;
+  count: number;
+}
+
 export interface CashSessionSummary {
   expected_cash: number;
   cash_sales: number;
@@ -452,6 +458,8 @@ export interface CashSessionSummary {
   orders: number;
   items: number;
   by_method: CashMethodTotal[];
+  by_currency: CashCurrencyTotal[];
+  total_usd: number;
 }
 
 export interface CashSession {

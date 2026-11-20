@@ -50,6 +50,10 @@ export default function PosCajaPage() {
 
   if (loading) return <div className="h-40 bg-gray-200 rounded-2xl animate-pulse" />;
 
+  const byCurrency = session?.summary?.by_currency ?? [];
+  const usdTotal = byCurrency.find((c) => c.currency === "USD")?.total ?? 0;
+  const vesTotal = byCurrency.find((c) => c.currency === "VES")?.total ?? 0;
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Caja</h1>
@@ -60,31 +64,55 @@ export default function PosCajaPage() {
             <Wallet className="w-5 h-5 text-brand-600" />
             <h2 className="font-semibold text-gray-900">Turno abierto #{session.id}</h2>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-gray-500">Fondo inicial</p>
-              <p className="font-semibold text-gray-900">${Number(session.opening_float).toFixed(2)}</p>
+          {/* Consolidado por moneda */}
+          <div className="mt-4 rounded-xl bg-gray-50 border border-gray-100 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Consolidado por moneda</p>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-gray-500">Vendido en USD</p>
+                <p className="font-semibold text-gray-900">${usdTotal.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Vendido en Bs.</p>
+                <p className="font-semibold text-gray-900">Bs. {vesTotal.toLocaleString("es-VE", { minimumFractionDigits: 2 })}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-gray-500">Ventas en efectivo</p>
-              <p className="font-semibold text-gray-900">${Number(session.summary?.cash_sales ?? 0).toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Otros métodos</p>
-              <p className="font-semibold text-gray-900">${Number(session.summary?.other_sales ?? 0).toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Esperado en caja</p>
-              <p className="font-semibold text-gray-900">${Number(session.summary?.expected_cash ?? 0).toFixed(2)}</p>
+            <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between text-sm">
+              <span className="font-medium text-gray-700">Total consolidado (USD)</span>
+              <span className="font-bold text-gray-900">${(session.summary?.total_usd ?? 0).toFixed(2)}</span>
             </div>
           </div>
 
+          {/* Caja física (efectivo) */}
+          <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-gray-500">Fondo inicial (USD)</p>
+              <p className="font-semibold text-gray-900">${Number(session.opening_float).toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Ventas en efectivo (USD)</p>
+              <p className="font-semibold text-gray-900">${Number(session.summary?.cash_sales ?? 0).toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Esperado en caja (USD)</p>
+              <p className="font-semibold text-gray-900">${Number(session.summary?.expected_cash ?? 0).toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Otros métodos (USD)</p>
+              <p className="font-semibold text-gray-900">${Number(session.summary?.other_sales ?? 0).toFixed(2)}</p>
+            </div>
+          </div>
+
+          {/* Desglose por método de pago */}
           {session.summary?.by_method && session.summary.by_method.length > 0 && (
             <div className="mt-4 border-t pt-4 space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Por método de pago</p>
               {session.summary.by_method.map((m, i) => (
                 <div key={i} className="flex justify-between text-sm">
-                  <span className="text-gray-600">{m.name} ({m.currency}) × {m.count}</span>
-                  <span className="font-medium text-gray-900">${Number(m.total).toFixed(2)}</span>
+                  <span className="text-gray-600">{m.name} × {m.count}</span>
+                  <span className="font-medium text-gray-900">
+                    {m.currency === "VES" ? `Bs. ${Number(m.total).toLocaleString("es-VE", { minimumFractionDigits: 2 })}` : `$${Number(m.total).toFixed(2)}`}
+                  </span>
                 </div>
               ))}
             </div>

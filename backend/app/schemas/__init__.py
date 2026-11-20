@@ -672,6 +672,12 @@ class CashMethodTotal(BaseModel):
     count: int
 
 
+class CashCurrencyTotal(BaseModel):
+    currency: str
+    total: Decimal
+    count: int
+
+
 class CashSessionSummary(BaseModel):
     expected_cash: Decimal = Decimal("0")
     cash_sales: Decimal = Decimal("0")
@@ -679,6 +685,10 @@ class CashSessionSummary(BaseModel):
     orders: int = 0
     items: int = 0
     by_method: list[CashMethodTotal] = []
+    # Consolidado por moneda (lo vendido en USD y en Bs., cada uno en su moneda).
+    by_currency: list[CashCurrencyTotal] = []
+    # Total consolidado de la caja convertido a USD.
+    total_usd: Decimal = Decimal("0")
 
 
 class CashSessionResponse(BaseModel):

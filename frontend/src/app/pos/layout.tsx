@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShoppingCart, Wallet, Receipt } from "lucide-react";
+import { ShoppingCart, Wallet, Receipt, Store } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import BrandLogo from "@/components/BrandLogo";
 
@@ -53,6 +53,14 @@ export default function PosLayout({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
+          <Link
+            href="/"
+            className="ml-auto flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 border border-white/10 hover:bg-white/5 hover:text-white transition-colors"
+            title="Volver a la tienda"
+          >
+            <Store className="w-4 h-4" />
+            <span className="hidden sm:inline">Volver a la tienda</span>
+          </Link>
         </div>
       </header>
       <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>

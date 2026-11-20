@@ -27,6 +27,7 @@ from app.models import (
 from app.routes.admin_finance import record_sale_income
 from app.site_config import get_config
 from app.schemas import (
+    CashCurrencyTotal,
     CashMethodTotal,
     CashSessionClose,
     CashSessionOpen,
@@ -53,8 +54,10 @@ def _session_summary(db: Session, session: CashSession) -> CashSessionSummary:
         .all()
     )
     totals: dict[tuple, dict] = {}
+    by_currency_agg: dict[str, dict] = {}
     cash_usd = 0.0
     other_usd = 0.0
+    total_usd = 0.0
     items = 0
     for o in orders:
         pm = o.payment_method
@@ -71,6 +74,11 @@ def _session_summary(db: Session, session: CashSession) -> CashSessionSummary:
             cash_usd += usd
         else:
             other_usd += usd
+        total_usd += usd
+        # Consolidado por moneda (en la moneda de cada método).
+        cur = by_currency_agg.setdefault(currency, {"total": 0.0, "count": 0})
+        cur["total"] += amount
+        cur["count"] += 1
         items += sum(int(i.quantity or 0) for i in o.items)
 
     by_method = [
@@ -85,6 +93,15 @@ def _session_summary(db: Session, session: CashSession) -> CashSessionSummary:
         for key, val in sorted(totals.items(), key=lambda kv: kv[0][1])
     ]
 
+    by_currency = [
+        CashCurrencyTotal(
+            currency=currency,
+            total=Decimal(str(_money(val["total"]))),
+            count=val["count"],
+        )
+        for currency, val in sorted(by_currency_agg.items())
+    ]
+
     cash_sales = _money(cash_usd)
     return CashSessionSummary(
         expected_cash=Decimal(str(_money(float(session.opening_float or 0) + cash_sales))),
@@ -93,6 +110,8 @@ def _session_summary(db: Session, session: CashSession) -> CashSessionSummary:
         orders=len(orders),
         items=items,
         by_method=by_method,
+        by_currency=by_currency,
+        total_usd=Decimal(str(_money(total_usd))),
     )
 
 
@@ -189,6 +208,8 @@ def create_pos_sale(
         raise HTTPException(status_code=400, detail="El método de pago no existe.")
     if not pm.is_active:
         raise HTTPException(status_code=400, detail="Ese método de pago ya no está disponible.")
+    if not pm.available_at_pos:
+        raise HTTPException(status_code=400, detail="Ese método de pago no está habilitado para el POS.")
 
     config = get_config(db)
 
