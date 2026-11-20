@@ -1,0 +1,21 @@
+# Override de desarrollo local: construye las imágenes y publica los puertos.
+# Docker lo fusiona automáticamente con docker-compose.yml.
+# Se levanta solo con `docker compose up -d db backend frontend` (sin Caddy).
+services:
+  db:
+    ports:
+      - "3307:3306"
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"

@@ -1,0 +1,27 @@
+# ── Entorno / secretos ──────────────────────────────────────────────
+.env
+.env.local
+.env.production
+*.env.local
+
+# ── Python ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+*.egg-info/
+
+# ── Node / Next.js ──────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# ── Archivos subidos (se montan como volumen) ───────────────────────
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+
+# ── Sistema ─────────────────────────────────────────────────────────
+*.log
+.DS_Store
+Thumbs.db

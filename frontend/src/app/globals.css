@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f0f13;
+  /* Tamaño de cada silla en los mapas de selección (cuadrado). */
+  --seat-size: 26px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --seat-size: 30px;
+  }
+}
+
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #0f0f13;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Paleta de marca TicketV (amarillo). El amarillo siempre va con texto
+     oscuro encima; para texto amarillo sobre fondo claro usar brand-700/800. */
+  --color-brand-50: #fffdf2;
+  --color-brand-100: #fff6cc;
+  --color-brand-200: #ffec99;
+  --color-brand-300: #ffe066;
+  --color-brand-400: #ffd12e;
+  --color-brand-500: #ffb800;
+  --color-brand-600: #e6a100;
+  --color-brand-700: #b87d00;
+  --color-brand-800: #8a5e00;
+  --color-brand-900: #5c3e00;
+
+  /* Acento naranja (energía, gradientes amarillo -> naranja) */
+  --color-accent-100: #fff2e0;
+  --color-accent-200: #ffe0b8;
+  --color-accent-400: #ffb04d;
+  --color-accent-500: #ff8a00;
+  --color-accent-600: #e67800;
+  --color-accent-700: #b85f00;
+  --color-accent-800: #8a4700;
+
+  /* Negro de estructura (navbar, footer, barra de compra). */
+  --color-ink-50: #f7f7f8;
+  --color-ink-100: #eeeef0;
+  --color-ink-200: #e2e2e6;
+  --color-ink-300: #cfcfd6;
+  --color-ink-400: #9a9aa5;
+  --color-ink-500: #6b6b76;
+  --color-ink-600: #45454f;
+  --color-ink-700: #2e2e36;
+  --color-ink-800: #1b1b21;
+  --color-ink-900: #0f0f13;
+  --color-ink-950: #08080a;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Editor visual de plantillas de correo: placeholder cuando está vacío. */
+.rte-area:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
