@@ -44,6 +44,8 @@ PERMISSIONS: list[Permission] = [
     Permission("pos.access", "Ver el panel de punto de venta", "POS"),
     Permission("pos.sell", "Vender productos en el POS", "POS"),
     Permission("pos.cash.manage", "Abrir y cerrar la caja del POS", "POS"),
+    # Cajas
+    Permission("cash.view_all", "Supervisar las cajas de todos los vendedores", "POS"),
     # Pagos
     Permission("payments.manage", "Gestionar los métodos de pago", "Pagos"),
     # Finanzas
@@ -56,6 +58,9 @@ PERMISSION_CODES: list[str] = [p.code for p in PERMISSIONS]
 PERMISSION_CODE_SET: set[str] = set(PERMISSION_CODES)
 
 # Roles válidos (deben coincidir con los valores de ``UserRole``).
+# Nota: el rol "user" representa al cliente comprador (rol interno). En la UI se
+# muestra como "Cliente". El rol "admin" es el administrador de la tienda y
+# "vendedor" es el vendedor de mostrador (POS).
 VALID_ROLES: list[str] = [r.value for r in UserRole]
 
 # Permisos que otorga cada rol por defecto. El admin recibe todos.

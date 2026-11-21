@@ -9,7 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
@@ -45,6 +45,7 @@ from app.schemas import (
 )
 from app.services.sales import reserve_order, _money
 from app.utils.auth import require_permission, require_vendedor
+from app.utils.rate_limit import pos_sale_rate_limit
 
 router = APIRouter(prefix="/pos", tags=["pos"])
 admin_router = APIRouter(prefix="/admin/cash-sessions", tags=["admin-cash"])
@@ -193,8 +194,10 @@ def list_pos_payment_methods(
 @router.post("/sales", response_model=OrderResponse)
 def create_pos_sale(
     data: PosSaleCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_vendedor),
+    _: None = Depends(pos_sale_rate_limit),
 ):
     session = (
         db.query(CashSession)
@@ -407,7 +410,7 @@ def admin_list_cash_sessions(
     skip: int = 0,
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_permission("finance.view_all")),
+    current_user: User = Depends(require_permission("cash.view_all")),
 ):
     q = db.query(CashSession).options(joinedload(CashSession.user))
     if status:
@@ -430,7 +433,7 @@ def admin_list_cash_sessions(
 def admin_get_cash_session(
     session_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_permission("finance.view_all")),
+    current_user: User = Depends(require_permission("cash.view_all")),
 ):
     session = db.query(CashSession).options(joinedload(CashSession.user)).filter(CashSession.id == session_id).first()
     if not session:

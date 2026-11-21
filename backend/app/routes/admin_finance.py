@@ -705,6 +705,7 @@ def create_payout(
         payment_method_id=data.payment_method_id,
         reference=(data.reference or "").strip()[:100] or None,
         note=(data.note or "").strip()[:255] or None,
+        payable_ids=data.payable_ids or None,
         created_by=current_user.id,
     )
     db.add(payout)
@@ -754,6 +755,12 @@ def delete_payout(
     payout = db.query(Payout).filter(Payout.id == payout_id).first()
     if not payout:
         raise HTTPException(status_code=404, detail="Pago no encontrado")
+    # Revierte las cuentas por pagar que este pago había saldado.
+    if payout.payable_ids:
+        db.query(Payable).filter(
+            Payable.id.in_(payout.payable_ids),
+            Payable.status == PayableStatus.PAID.value,
+        ).update({"status": PayableStatus.PENDING.value}, synchronize_session=False)
     if payout.finance_entry_id:
         entry = db.query(FinanceEntry).filter(FinanceEntry.id == payout.finance_entry_id).first()
         if entry:

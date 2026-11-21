@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
 from PIL import Image
 
 from app.utils.auth import get_current_user, require_admin
+from app.utils.rate_limit import upload_rate_limit
 from app.models import User
 
 router = APIRouter(tags=["uploads"])
@@ -95,6 +96,7 @@ def upload_image(
     file: UploadFile = File(...),
     request: Request = None,
     current_user: User = Depends(require_admin),
+    _: None = Depends(upload_rate_limit),
 ):
     content = file.file.read()
     url = _save_upload(content, set(ALLOWED_FORMATS.values()), request)
@@ -106,6 +108,7 @@ def upload_receipt(
     file: UploadFile = File(...),
     request: Request = None,
     current_user: User = Depends(get_current_user),
+    _: None = Depends(upload_rate_limit),
 ):
     """Sube el comprobante de pago del comprador (imagen o PDF).
 

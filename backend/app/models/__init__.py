@@ -536,7 +536,6 @@ class Payout(Base):
     __tablename__ = "payouts"
 
     id = Column(Integer, primary_key=True, index=True)
-    payee_type = Column(String(20), nullable=False)  # "vendor"
     vendor_id = Column(Integer, ForeignKey("vendors.id"))
     amount = Column(Numeric(14, 2), nullable=False)
     currency = Column(String(10), default="USD", nullable=False)
@@ -547,6 +546,8 @@ class Payout(Base):
     reference = Column(String(100))
     note = Column(String(255))
     finance_entry_id = Column(Integer, ForeignKey("finance_entries.id"))
+    # IDs de las cuentas por pagar que este pago saldó (para revertir al borrar).
+    payable_ids = Column(JSON)
     created_by = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
 

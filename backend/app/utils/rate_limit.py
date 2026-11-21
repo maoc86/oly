@@ -40,6 +40,10 @@ class SlidingWindow:
 
 _login = SlidingWindow(settings.RATE_LIMIT_LOGIN_MAX, settings.RATE_LIMIT_WINDOW_SECONDS)
 _register = SlidingWindow(settings.RATE_LIMIT_REGISTER_MAX, settings.RATE_LIMIT_WINDOW_SECONDS)
+# Límites básicos para endpoints sensibles (un único proceso, en memoria).
+_upload = SlidingWindow(30, settings.RATE_LIMIT_WINDOW_SECONDS)
+_pos_sale = SlidingWindow(60, settings.RATE_LIMIT_WINDOW_SECONDS)
+_order = SlidingWindow(20, settings.RATE_LIMIT_WINDOW_SECONDS)
 
 
 def _client_ip(request: Request) -> str:
@@ -54,3 +58,15 @@ def login_rate_limit(request: Request) -> None:
 
 def register_rate_limit(request: Request) -> None:
     _register.hit(_client_ip(request))
+
+
+def upload_rate_limit(request: Request) -> None:
+    _upload.hit(_client_ip(request))
+
+
+def pos_sale_rate_limit(request: Request) -> None:
+    _pos_sale.hit(_client_ip(request))
+
+
+def order_rate_limit(request: Request) -> None:
+    _order.hit(_client_ip(request))

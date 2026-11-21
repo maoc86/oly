@@ -178,6 +178,15 @@ def delete_product(
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
+    # No borrar si hay ventas asociadas.
+    from app.models import OrderItem
+    sales_count = db.query(OrderItem).filter(OrderItem.product_id == product_id).count()
+    if sales_count > 0:
+        raise HTTPException(status_code=400, detail=f"No se puede eliminar: el producto tiene {sales_count} venta(s) asociada(s). Desactivá el producto en su lugar.")
+    # No borrar si hay movimientos de inventario.
+    mov_count = db.query(InventoryMovement).filter(InventoryMovement.product_id == product_id).count()
+    if mov_count > 0:
+        raise HTTPException(status_code=400, detail=f"No se puede eliminar: el producto tiene {mov_count} movimiento(s) de inventario. Desactivá el producto en su lugar.")
     db.delete(product)
     db.commit()
     return {"detail": "Producto eliminado"}
@@ -247,6 +256,13 @@ def delete_variant(
     variant = db.query(ProductVariant).filter(ProductVariant.id == variant_id).first()
     if not variant:
         raise HTTPException(status_code=404, detail="Variante no encontrada")
+    from app.models import OrderItem
+    sales_count = db.query(OrderItem).filter(OrderItem.product_variant_id == variant_id).count()
+    if sales_count > 0:
+        raise HTTPException(status_code=400, detail=f"No se puede eliminar la variante: tiene {sales_count} venta(s) asociada(s). Desactivá la variante en su lugar.")
+    mov_count = db.query(InventoryMovement).filter(InventoryMovement.product_variant_id == variant_id).count()
+    if mov_count > 0:
+        raise HTTPException(status_code=400, detail=f"No se puede eliminar la variante: tiene {mov_count} movimiento(s) de inventario. Desactivá la variante en su lugar.")
     db.delete(variant)
     db.commit()
     return {"detail": "Variante eliminada"}

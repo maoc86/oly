@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
   { href: "/admin/pedidos", label: "Pedidos", icon: Receipt, perm: "orders.view_all", group: "ventas", badgeKey: "pending" },
   { href: "/admin/cupones", label: "Cupones", icon: Percent, perm: "coupons.manage", group: "ventas" },
   { href: "/admin/clientes", label: "Clientes", icon: UserRound, perm: "orders.view_all", group: "ventas" },
-  { href: "/admin/cajas", label: "Cajas (POS)", icon: Wallet, perm: "finance.view_all", group: "ventas" },
+  { href: "/admin/cajas", label: "Cajas (POS)", icon: Wallet, perm: "cash.view_all", group: "ventas" },
   { href: "/admin/finanzas", label: "Finanzas", icon: Wallet, perm: "finance.view_all", group: "finanzas" },
   { href: "/admin/tasas", label: "Tasas de cambio", icon: Banknote, perm: "settings.manage", group: "finanzas" },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users, perm: "users.manage", group: "usuarios" },

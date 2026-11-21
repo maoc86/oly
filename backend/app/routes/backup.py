@@ -15,11 +15,11 @@ router = APIRouter(prefix="/admin/backup", tags=["admin-backup"])
 def download_db_backup(current_user: User = Depends(require_permission("settings.manage"))):
     url = os.getenv("DATABASE_URL", "")
     parsed = urlparse(url)
-    user = parsed.username or "ticketing"
+    user = parsed.username or "oly"
     password = parsed.password or ""
     host = parsed.hostname or "db"
     port = str(parsed.port or 3306)
-    db_name = (parsed.path or "/ticketing_db").lstrip("/")
+    db_name = (parsed.path or "/oly_db").lstrip("/")
 
     cmd = [
         "mysqldump",

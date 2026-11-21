@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
@@ -24,6 +24,7 @@ from app.models import (
 from app.schemas import OrderCreate, OrderResponse
 from app.site_config import get_config
 from app.utils.auth import get_current_user, require_permission
+from app.utils.rate_limit import order_rate_limit
 from app.mailer import build_order_context, send_template_email
 from app.services.sales import reserve_order
 from app.routes.coupons import apply_coupon_to_order, release_coupon
@@ -62,8 +63,10 @@ def _load_order(db: Session, order_id: int) -> Order:
 @router.post("", response_model=OrderResponse)
 def create_order(
     data: OrderCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: None = Depends(order_rate_limit),
 ):
     config = get_config(db)
 
