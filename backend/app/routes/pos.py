@@ -44,6 +44,7 @@ from app.services.sales import reserve_order, _money
 from app.utils.auth import require_permission, require_vendedor
 
 router = APIRouter(prefix="/pos", tags=["pos"])
+admin_router = APIRouter(prefix="/admin/cash-sessions", tags=["admin-cash"])
 
 
 def _session_summary(db: Session, session: CashSession) -> CashSessionSummary:
@@ -393,6 +394,47 @@ def close_cash_session(
     db.commit()
     db.refresh(session)
     return _session_response(db, session)
+
+# ─── Admin: supervisión de todas las cajas ────────────────────────────
+
+@admin_router.get("", response_model=list[CashSessionResponse])
+def admin_list_cash_sessions(
+    status: Optional[str] = None,
+    user_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = Query(100, ge=1, le=500),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("finance.view_all")),
+):
+    q = db.query(CashSession).options(joinedload(CashSession.user))
+    if status:
+        try:
+            q = q.filter(CashSession.status == CashSessionStatus(status))
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Estado invalido")
+    if user_id:
+        q = q.filter(CashSession.user_id == user_id)
+    sessions = (
+        q.order_by(CashSession.opened_at.desc())
+        .offset(max(0, skip))
+        .limit(max(1, min(limit, 500)))
+        .all()
+    )
+    return [_session_response(db, s) for s in sessions]
+
+
+@admin_router.get("/{session_id}", response_model=CashSessionResponse)
+def admin_get_cash_session(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("finance.view_all")),
+):
+    session = db.query(CashSession).options(joinedload(CashSession.user)).filter(CashSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Caja no encontrada")
+    return _session_response(db, session)
+
+
 
 
 def _is_admin(user: User) -> bool:

@@ -39,8 +39,6 @@ interface Payable {
 
 interface Payout {
   id: number;
-  payee_type: string;
-  organizer_id?: number | null;
   vendor_id?: number | null;
   payee_name?: string | null;
   amount: number;
@@ -68,7 +66,6 @@ interface PayeesResponse {
 }
 
 interface PayeeOptions {
-  organizers: { id: number; name: string }[];
   vendors: Vendor[];
 }
 
@@ -105,7 +102,7 @@ export default function CuentasPorPagar() {
   const [vendorForm, setVendorForm] = useState({ id: null as number | null, name: "", category: "", phone: "", email: "", rif: "", notes: "" });
   const [payableForm, setPayableForm] = useState({ vendor_id: "", description: "", amount: "", currency: "USD", due_date: "" });
   const [payoutForm, setPayoutForm] = useState({
-    payee_type: "vendor" as "organizer" | "vendor",
+    payee_type: "vendor" as "vendor",
     payee_id: "",
     amount: "",
     currency: "USD",
@@ -276,7 +273,7 @@ export default function CuentasPorPagar() {
 
   function openPayout(payee?: Payee) {
     setPayoutForm({
-      payee_type: payee ? (payee.payee_type as "organizer" | "vendor") : "organizer",
+      payee_type: payee ? (payee.payee_type as "vendor") : "vendor",
       payee_id: payee ? String(payee.payee_id) : "",
       amount: "",
       currency: "USD",
@@ -299,7 +296,6 @@ export default function CuentasPorPagar() {
     setSaving(true);
     try {
       const payload: Record<string, unknown> = {
-        payee_type: payoutForm.payee_type,
         amount,
         currency: payoutForm.currency,
         date: payoutForm.date ? new Date(payoutForm.date).toISOString() : undefined,
@@ -308,12 +304,8 @@ export default function CuentasPorPagar() {
         reference: payoutForm.reference.trim() || undefined,
         note: payoutForm.note.trim() || undefined,
       };
-      if (payoutForm.payee_type === "organizer") {
-        payload.organizer_id = Number(payoutForm.payee_id);
-      } else {
-        payload.vendor_id = Number(payoutForm.payee_id);
-        if (payoutForm.payable_ids.length) payload.payable_ids = payoutForm.payable_ids;
-      }
+      payload.vendor_id = Number(payoutForm.payee_id);
+      if (payoutForm.payable_ids.length) payload.payable_ids = payoutForm.payable_ids;
       await api.post("/admin/finance/payouts", payload);
       setPayoutOpen(false);
       await reload();
@@ -342,9 +334,8 @@ export default function CuentasPorPagar() {
 
   const totals = payees?.totals ?? { accrued: 0, paid: 0, pending: 0 };
   const methodOptions = [{ value: "", label: "Sin cuenta (general)" }, ...methods.map((m) => ({ value: String(m.id), label: `${m.name} (${m.currency})` }))];
-  const organizerOptions = options?.organizers ?? [];
   const vendorOptions = options?.vendors ?? [];
-  const payeeOptionsForType = payoutForm.payee_type === "organizer" ? organizerOptions.map((o) => ({ value: String(o.id), label: o.name })) : vendorOptions.map((v) => ({ value: String(v.id), label: v.name }));
+  const payeeOptionsForType = vendorOptions.map((v) => ({ value: String(v.id), label: v.name }));
 
   return (
     <div className="space-y-6">
@@ -408,8 +399,8 @@ export default function CuentasPorPagar() {
                 <tr key={`${p.payee_type}-${p.payee_id}`} className="border-t border-gray-100 hover:bg-gray-50">
                   <td className="p-4 font-medium text-gray-900">{p.name}</td>
                   <td className="p-4">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${p.payee_type === "organizer" ? "bg-brand-100 text-brand-800" : "bg-gray-100 text-gray-600"}`}>
-                      {p.payee_type === "organizer" ? "Organizador" : "Proveedor"}
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                      Proveedor
                     </span>
                   </td>
                   <td className="p-4 text-right text-gray-700">{formatPrice(p.accrued)}</td>
@@ -536,7 +527,7 @@ export default function CuentasPorPagar() {
                   <tr key={p.id} className="border-t border-gray-100 hover:bg-gray-50">
                     <td className="p-4">
                       <p className="font-medium text-gray-900">{p.payee_name || "—"}</p>
-                      <p className="text-xs text-gray-400">{p.payee_type === "organizer" ? "Organizador" : "Proveedor"}{p.note ? ` · ${p.note}` : ""}</p>
+                      <p className="text-xs text-gray-400">Proveedor{p.note ? ` · ${p.note}` : ""}</p>
                     </td>
                     <td className="p-4 text-gray-500">{fmtDate(p.date)}</td>
                     <td className="p-4 text-gray-500">{p.reference || "—"}</td>
@@ -626,7 +617,7 @@ export default function CuentasPorPagar() {
           <Input label="Referencia" value={payoutForm.reference} onChange={(e) => setPayoutForm({ ...payoutForm, reference: e.target.value })} placeholder="N° de transferencia, etc." />
           <Input label="Nota" value={payoutForm.note} onChange={(e) => setPayoutForm({ ...payoutForm, note: e.target.value })} />
 
-          {payoutForm.payee_type === "vendor" && payoutForm.payee_id && (pendingPayablesByVendor[Number(payoutForm.payee_id)] ?? []).length > 0 && (
+          {payoutForm.payee_id && (pendingPayablesByVendor[Number(payoutForm.payee_id)] ?? []).length > 0 && (
             <div className="border-t border-gray-100 pt-3">
               <p className="text-sm font-semibold text-gray-700 mb-2">Salda estas cuentas pendientes (opcional)</p>
               <div className="space-y-2 max-h-40 overflow-auto">

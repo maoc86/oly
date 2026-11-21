@@ -99,6 +99,7 @@ app.include_router(backup.router)
 
 # POS
 app.include_router(pos.router)
+app.include_router(pos.admin_router)
 
 
 # Servir imágenes subidas
