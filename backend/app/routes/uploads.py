@@ -66,7 +66,7 @@ def _save_upload(content: bytes, allowed_exts: set[str], request: Request, targe
     """Valida y guarda el archivo, devolviendo su URL pública.
 
     `allowed_exts` limita qué tipos se aceptan (p. ej. los comprobantes admiten
-    también `.pdf`, mientras que las imágenes de eventos no).
+    también `.pdf`, mientras que las imágenes de productos no).
     """
     if not content:
         raise HTTPException(status_code=400, detail="El archivo está vacío.")

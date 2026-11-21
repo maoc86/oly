@@ -1,8 +1,7 @@
 """Zona horaria de la plataforma.
 
-Las fechas de eventos y cupones se guardan como datetime *naive* en hora local
-del lugar del evento (Maracaibo, Venezuela = America/Caracas, UTC-4, sin horario
-de verano). Por eso, cualquier comparación contra "ahora" debe usar la hora local
+Las fechas (cupones, pedidos, etc.) se guardan como datetime *naive* en hora local
+de la plataforma (Maracaibo, Venezuela = America/Caracas, UTC-4, sin horario de verano). Por eso, cualquier comparación contra "ahora" debe usar la hora local
 (no ``datetime.utcnow()``), o se bloquea de más la venta en las últimas horas del
 día del evento (el bug de timezone).
 
@@ -20,7 +19,6 @@ def local_now() -> datetime:
 
     Devuelve la hora actual en la zona horaria de la plataforma, sin ``tzinfo``,
     para poder compararla directamente contra las fechas naive almacenadas en la
-    base de datos (``start_date``, ``end_date``, ``sale_start``, ``sale_end``,
-    ``starts_at``, ``expires_at``, etc.).
+    base de datos (``starts_at``, ``expires_at``, ``created_at``, etc.).
     """
     return datetime.now(APP_TZ).replace(tzinfo=None)

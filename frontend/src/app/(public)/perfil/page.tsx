@@ -90,7 +90,7 @@ export default function PerfilPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Mi perfil</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Actualizá tus datos de contacto. Los usamos para tus compras y boletos.
+          Actualizá tus datos de contacto. Los usamos para tus compras y envíos.
         </p>
       </div>
 

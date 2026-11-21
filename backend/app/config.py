@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     RATE_LIMIT_REGISTER_MAX: int = 5
     RATE_LIMIT_WINDOW_SECONDS: int = 60
     # URL pública del frontend. Se usa para los links dentro de los correos
-    # (p. ej. /reset-password, /boletos).
+    # (p. ej. /reset-password, /pedidos).
     APP_URL: str = "http://localhost:3000"
     # SMTP. Si SMTP_HOST o SMTP_USER están vacíos, `smtp_configured` es False y
     # el motor de correos registra el envío en el log sin contactar ningún servidor.

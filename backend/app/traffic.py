@@ -3,7 +3,7 @@
 Un middleware captura cada petición que llega al backend y la guarda en la
 tabla `request_logs`. El esquema de la aplicación es un SPA: las páginas del
 frontend piden datos a la API, así que estas llamadas reflejan bastante bien
-la actividad real de visitantes, organizadores y admins.
+la actividad real de visitantes, vendedores y admins.
 
 Diseño:
 - **No bloquea ni rompe nada**: si el registro falla, la petición sigue igual.

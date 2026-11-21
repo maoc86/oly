@@ -34,7 +34,7 @@ DEFAULT_TZ_OFFSET = -4
 ONLINE_WINDOW_MINUTES = 5
 # Máximo de elementos en los rankings.
 TOP_LIMIT = 12
-# Prefijos de los paneles internos (admin/organizador). Su actividad no es
+# Prefijos de los paneles internos (admin/pos). Su actividad no es
 # "tráfico" del sitio: si no se excluye, el propio admin dominaría las cifras.
 INTERNAL_PREFIXES = ("/admin", "/pos")
 

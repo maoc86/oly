@@ -55,7 +55,7 @@ const GROUPS = [
   { key: "aviso", title: "Aviso del navbar", desc: "Barra fija sobre el menú con el mensaje que quieras.", icon: Megaphone },
   { key: "hero", title: "Comportamiento del hero", desc: "Rotación, tiempo y tamaño de las imágenes de la portada.", icon: Layout },
   { key: "banners", title: "Comportamiento de los banners", desc: "Rotación de las imágenes destacadas del inicio.", icon: Image },
-  { key: "ventas", title: "IVA, cargos y comisión", desc: "Lo que paga el usuario y lo que se le descuenta al organizador.", icon: Receipt },
+  { key: "ventas", title: "IVA y cargos", desc: "Impuestos aplicados a las ventas.", icon: Receipt },
   { key: "limites", title: "Límites de compra", desc: "Use 0 para desactivar el límite.", icon: Ruler },
   { key: "sistema", title: "Sistema y mantenimiento", desc: "Modo mantenimiento y backups de la base de datos.", icon: ShieldCheck },
 ];
@@ -597,16 +597,13 @@ export default function AdminConfiguracionPage() {
                   ))}
                 </div>
 
-                {group.key === "ventas" && (
-                  <p className="text-xs text-gray-500 mt-5 bg-gray-50 rounded-lg p-3">
-                    El precio que carga el organizador es el <strong>precio final</strong> que paga el comprador
-                    y con el que se publicita la entrada: ya <strong>incluye</strong> el servicio, el{" "}
-                    <strong>IVA ({values.tax_percent ?? 0}%)</strong> y el{" "}
-                    <strong>impuesto municipal ({values.municipal_tax_percent ?? 0}%)</strong>. El organizador
-                    recibe solo la base; la plataforma retiene el servicio y los impuestos. El servicio y el
-                    impuesto municipal se pueden personalizar por evento; el IVA no.
-                  </p>
-                )}
+                  {group.key === "ventas" && (
+                    <p className="text-xs text-gray-500 mt-5 bg-gray-50 rounded-lg p-3">
+                      El precio del producto es el <strong>precio final</strong> que paga el comprador. El{" "}
+                      <strong>IVA ({values.tax_percent ?? 0}%)</strong> se calcula sobre el subtotal y se suma al
+                      total. Podés desactivar el IVA poniéndolo en 0%.
+                    </p>
+                  )}
 
                 <div className="flex items-center gap-3 mt-5">
                   <Button onClick={() => saveGroup(group.key)} disabled={savingGroup === group.key}>

@@ -215,7 +215,7 @@ export default function AdminTraffic() {
             Actividad de visitantes en la web. Los bots se cuentan aparte.
           </p>
           <p className="text-xs text-gray-400 mt-1">
-            No incluye el panel de administración ni el de organizadores.
+            No incluye el panel de administración ni el POS.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
