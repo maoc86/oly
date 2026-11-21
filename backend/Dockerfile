@@ -21,8 +21,8 @@ COPY alembic ./alembic
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
-# Directorio de imágenes subidas (se monta como volumen en producción).
-RUN mkdir -p /app/app/uploads
+# Directorio de imágenes subidas y comprobantes (se montan como volumen en producción).
+RUN mkdir -p /app/app/uploads /app/app/receipts
 
 # Usuario sin privilegios (evita correr como root).
 RUN useradd --create-home --uid 1000 appuser && chown -R appuser:appuser /app

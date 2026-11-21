@@ -39,7 +39,7 @@ _RECEIPT_FILENAME_RE = re.compile(r"^[0-9a-f]{32}\.(jpg|png|webp|gif|pdf)$")
 
 def _is_valid_receipt_url(url: str) -> bool:
     path = url.split("?", 1)[0]
-    if "/uploads/" not in path:
+    if "/receipts/" not in path and "/uploads/" not in path:
         return False
     return bool(_RECEIPT_FILENAME_RE.match(path.rsplit("/", 1)[-1]))
 

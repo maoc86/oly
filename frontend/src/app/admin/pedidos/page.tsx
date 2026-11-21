@@ -41,6 +41,21 @@ export default function AdminPedidosPage() {
     }
   }
 
+  async function viewReceipt(url: string) {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${url}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error("No se pudo cargar el comprobante");
+      const blob = await res.blob();
+      const objUrl = URL.createObjectURL(blob);
+      window.open(objUrl, "_blank");
+    } catch (e) {
+      toastError(e instanceof Error ? e.message : "Error");
+    }
+  }
+
   async function cancelOrder(id: number) {
     if (!(await confirmDialog({ message: "¿Cancelar este pedido? Se devolverá el stock.", danger: true }))) return;
     try {
@@ -99,6 +114,11 @@ export default function AdminPedidosPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
+                  {o.payment_receipt_url && (
+                    <button onClick={() => viewReceipt(o.payment_receipt_url!)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-brand-700 bg-brand-50 hover:bg-brand-100">
+                      Ver comprobante
+                    </button>
+                  )}
                   <span className="font-bold text-gray-900">{formatPrice(Number(o.total))}</span>
                   <Badge status={o.status} />
                 </div>

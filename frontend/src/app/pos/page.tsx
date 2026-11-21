@@ -181,16 +181,19 @@ export default function PosPage() {
               <p className="font-medium text-gray-900 text-sm truncate">{p.name}</p>
               <p className="text-xs text-gray-400">{p.sku || "—"}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {p.variants.filter((v) => v.stock > 0).map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => addVariant(p, v)}
-                    className="px-2 py-1 rounded-lg text-xs font-medium bg-brand-50 text-brand-700 hover:bg-brand-100"
-                    title={`stock ${v.stock}`}
-                  >
-                    {v.size || "Único"}{v.color ? ` · ${v.color}` : ""}
-                  </button>
-                ))}
+                {p.variants.filter((v) => v.stock > 0).map((v) => {
+                  const low = v.min_stock > 0 && v.stock <= v.min_stock;
+                  return (
+                    <button
+                      key={v.id}
+                      onClick={() => addVariant(p, v)}
+                      className={`px-2 py-1 rounded-lg text-xs font-medium ${low ? "bg-amber-50 text-amber-700 hover:bg-amber-100" : "bg-brand-50 text-brand-700 hover:bg-brand-100"}`}
+                      title={`stock ${v.stock}${low ? " (bajo)" : ""}`}
+                    >
+                      {v.size || "Único"}{v.color ? ` · ${v.color}` : ""}{low ? " ⚠" : ""}
+                    </button>
+                  );
+                })}
               </div>
               {p.variants.every((v) => v.stock <= 0) && <p className="mt-2 text-xs text-red-500">Agotado</p>}
             </div>

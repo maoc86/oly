@@ -13,6 +13,7 @@ router = APIRouter(tags=["uploads"])
 
 # Ruta física donde se guardan los archivos subidos (imágenes y comprobantes).
 UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
+RECEIPTS_DIR = Path(__file__).resolve().parent.parent / "receipts"
 MAX_SIZE = 10 * 1024 * 1024  # 10 MB
 MAX_IMAGE_DIM = 1920
 WEBP_QUALITY = 82
@@ -61,7 +62,7 @@ def _optimize_image(content: bytes) -> bytes:
         return content
 
 
-def _save_upload(content: bytes, allowed_exts: set[str], request: Request) -> str:
+def _save_upload(content: bytes, allowed_exts: set[str], request: Request, target_dir: Path = UPLOAD_DIR, url_prefix: str = "/uploads") -> str:
     """Valida y guarda el archivo, devolviendo su URL pública.
 
     `allowed_exts` limita qué tipos se aceptan (p. ej. los comprobantes admiten
@@ -77,18 +78,18 @@ def _save_upload(content: bytes, allowed_exts: set[str], request: Request) -> st
         allowed = ", ".join(sorted(e.lstrip(".") for e in allowed_exts))
         raise HTTPException(status_code=400, detail=f"Formato no válido. Usá: {allowed}.")
 
-    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    target_dir.mkdir(parents=True, exist_ok=True)
     if ext == ".pdf":
         filename = f"{uuid.uuid4().hex}{ext}"
-        (UPLOAD_DIR / filename).write_bytes(content)
+        (target_dir / filename).write_bytes(content)
     else:
         filename = f"{uuid.uuid4().hex}.webp"
         optimized = _optimize_image(content)
-        (UPLOAD_DIR / filename).write_bytes(optimized)
+        (target_dir / filename).write_bytes(optimized)
 
     # URL relativa: se resuelve contra el host del frontend en cada entorno
     # (local, Docker, producción) y se proxee al backend vía el rewrite de Next.
-    return f"/uploads/{filename}"
+    return f"{url_prefix}/{filename}"
 
 
 @router.post("/admin/upload")
@@ -112,9 +113,24 @@ def upload_receipt(
 ):
     """Sube el comprobante de pago del comprador (imagen o PDF).
 
-    El comprador está autenticado; el archivo se guarda con un nombre aleatorio y
-    se sirve desde `/uploads`. La URL resultante se incluye al crear la orden.
+    El comprobante se guarda en un directorio separado (no servido públicamente)
+    y se accede solo mediante el endpoint autenticado /receipts/{filename}.
     """
     content = file.file.read()
-    url = _save_upload(content, set(RECEIPT_FORMATS.values()), request)
+    url = _save_upload(content, set(RECEIPT_FORMATS.values()), request, RECEIPTS_DIR, "/receipts")
     return {"url": url}
+
+
+@router.get("/receipts/{filename}")
+def download_receipt(
+    filename: str,
+    current_user: User = Depends(get_current_user),
+):
+    """Descarga un comprobante de pago. Requiere autenticación."""
+    if "/" in filename or "\\" in filename or ".." in filename:
+        raise HTTPException(status_code=400, detail="Nombre de archivo inválido.")
+    path = RECEIPTS_DIR / filename
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Comprobante no encontrado.")
+    from fastapi.responses import FileResponse
+    return FileResponse(path)
