@@ -10,13 +10,18 @@ import { normalizeImageUrl } from "@/lib/images";
 export default function CartPage() {
   const { cart, setQty, removeLine, itemsCount, total } = useCart();
   const format = usePriceFormatter();
-  const { currency } = useCurrency();
+  const { currency, setCurrency } = useCurrency();
   const { config } = useSiteConfig();
 
   const freeThreshold = Number(config.free_shipping_threshold || 0);
   const freeShipping = freeThreshold > 0 && total >= freeThreshold;
   const progress = freeThreshold > 0 ? Math.min(100, (total / freeThreshold) * 100) : 0;
   const remaining = freeThreshold > 0 ? Math.max(0, freeThreshold - total) : 0;
+
+  // Estimación de impuestos (el backend calcula el definitivo en el checkout).
+  const taxRate = Number(config.tax_percent || 0) / 100;
+  const estimatedTax = Math.round(total * taxRate * 100) / 100;
+  const estimatedTotal = total + estimatedTax;
 
   if (cart.lines.length === 0) {
     return (
@@ -130,23 +135,31 @@ export default function CartPage() {
         <aside className="lg:col-span-1">
           <div className="sticky top-24 space-y-4">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
-              <h2 className="font-semibold text-gray-900 text-lg">Resumen del pedido</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-gray-900 text-lg">Resumen del pedido</h2>
+                <button
+                  onClick={() => setCurrency(currency === "USD" ? "VES" : "USD")}
+                  className="text-xs font-medium px-2.5 py-1 rounded-full border border-gray-200 text-gray-600 hover:border-brand-400 hover:text-brand-700 transition-colors"
+                >
+                  {currency === "USD" ? "Ver en Bs." : "Ver en USD"}
+                </button>
+              </div>
               <div className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({itemsCount} artículo{itemsCount === 1 ? "" : "s"})</span>
                   <span>{format(total)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
+                  <span>Impuestos estimados ({config.tax_percent}%)</span>
+                  <span>{format(estimatedTax)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
                   <span>Envío</span>
                   <span>{freeShipping ? "Gratis" : "A calcular"}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Impuestos</span>
-                  <span>A calcular</span>
-                </div>
                 <div className="flex justify-between text-xl font-bold text-gray-900 pt-3 border-t">
                   <span>Total estimado</span>
-                  <span>{format(total)}</span>
+                  <span>{format(estimatedTotal)}</span>
                 </div>
               </div>
 
@@ -159,7 +172,7 @@ export default function CartPage() {
               </Link>
 
               <p className="mt-3 text-xs text-gray-400 text-center">
-                Impuestos y envío se calculan en el checkout.
+                El total final se calcula en el checkout (impuestos y envío exactos).
               </p>
             </div>
 
