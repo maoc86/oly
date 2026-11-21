@@ -35,7 +35,6 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
-  const [zip, setZip] = useState("");
   const [buyerName, setBuyerName] = useState("");
   const [buyerCedula, setBuyerCedula] = useState("");
   const [buyerPhone, setBuyerPhone] = useState("");
@@ -136,6 +135,30 @@ export default function CheckoutPage() {
       setError("Este método de pago requiere adjuntar el comprobante.");
       return;
     }
+    if (!buyerName.trim()) {
+      setError("El nombre completo es obligatorio.");
+      return;
+    }
+    if (!buyerCedula.trim()) {
+      setError("La cédula es obligatoria.");
+      return;
+    }
+    if (!buyerPhone.trim()) {
+      setError("El teléfono es obligatorio.");
+      return;
+    }
+    if (!address.trim()) {
+      setError("La dirección es obligatoria.");
+      return;
+    }
+    if (!city.trim()) {
+      setError("La ciudad es obligatoria.");
+      return;
+    }
+    if (!state.trim()) {
+      setError("El estado es obligatorio.");
+      return;
+    }
     if (!terms) {
       setError("Debés aceptar los términos y condiciones.");
       return;
@@ -168,7 +191,6 @@ export default function CheckoutPage() {
         shipping_address: address.trim() || undefined,
         shipping_city: city.trim() || undefined,
         shipping_state: state.trim() || undefined,
-        shipping_zip: zip.trim() || undefined,
       });
       clearCart();
       router.push("/pedidos");
@@ -229,16 +251,16 @@ export default function CheckoutPage() {
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
                 <input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} placeholder="Tu nombre" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cédula</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cédula *</label>
                   <input value={buyerCedula} onChange={(e) => setBuyerCedula(e.target.value)} placeholder="V-12345678" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
                   <input value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} placeholder="0412-0000000" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
               </div>
@@ -284,22 +306,18 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              <div className="grid sm:grid-cols-2 gap-3">
+              <div className="mt-4 grid sm:grid-cols-2 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                  <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Calle, número, apartamento" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Dirección *</label>
+                  <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Calle, número, apartamento" required className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
-                  <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ciudad" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad *</label>
+                  <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ciudad" required className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                  <input value={state} onChange={(e) => setState(e.target.value)} placeholder="Estado" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Código postal</label>
-                  <input value={zip} onChange={(e) => setZip(e.target.value)} placeholder="0000" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                  <input value={state} onChange={(e) => setState(e.target.value)} placeholder="Estado" required className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
               </div>
             </div>
