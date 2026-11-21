@@ -133,4 +133,15 @@ def download_receipt(
     if not path.is_file():
         raise HTTPException(status_code=404, detail="Comprobante no encontrado.")
     from fastapi.responses import FileResponse
-    return FileResponse(path)
+    # mimetypes no registra .webp por defecto en Python 3.11.
+    EXT_MEDIA = {
+        ".webp": "image/webp",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".gif": "image/gif",
+        ".pdf": "application/pdf",
+    }
+    ext = path.suffix.lower()
+    media_type = EXT_MEDIA.get(ext, "application/octet-stream")
+    return FileResponse(path, media_type=media_type, headers={"Content-Disposition": "inline"})

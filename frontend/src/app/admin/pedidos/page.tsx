@@ -84,7 +84,9 @@ export default function AdminPedidosPage() {
       const blob = await res.blob();
       const objUrl = URL.createObjectURL(blob);
       setReceiptUrl(objUrl);
-      setReceiptIsImage(blob.type.startsWith("image/"));
+      // Determinar si es imagen por el tipo MIME o por la extensión del archivo.
+      const isImage = blob.type.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+      setReceiptIsImage(isImage);
     } catch (e) {
       toastError(e instanceof Error ? e.message : "Error");
       setReceiptModalOpen(false);
