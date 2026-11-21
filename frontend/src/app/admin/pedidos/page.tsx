@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, XCircle, Search } from "lucide-react";
+import { CheckCircle, XCircle, Search, FileImage } from "lucide-react";
 import { api } from "@/lib/api";
 import { Order } from "@/lib/types";
-import { Badge, EmptyState } from "@/components/ui";
+import { Badge, EmptyState, Modal } from "@/components/ui";
 import { formatPrice } from "@/lib/format";
 import { toastError, toastSuccess } from "@/lib/toast";
 import { confirmDialog } from "@/lib/confirm";
@@ -20,6 +20,10 @@ export default function AdminPedidosPage() {
   const [page, setPage] = useState(0);
   const LIMIT = 20;
   const [hasMore, setHasMore] = useState(false);
+  const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+  const [receiptLoading, setReceiptLoading] = useState(false);
+  const [receiptIsImage, setReceiptIsImage] = useState(true);
 
   async function load() {
     setLoading(true);
@@ -68,6 +72,9 @@ export default function AdminPedidosPage() {
   }
 
   async function viewReceipt(url: string) {
+    setReceiptModalOpen(true);
+    setReceiptLoading(true);
+    setReceiptUrl(null);
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${url}`, {
@@ -76,10 +83,20 @@ export default function AdminPedidosPage() {
       if (!res.ok) throw new Error("No se pudo cargar el comprobante");
       const blob = await res.blob();
       const objUrl = URL.createObjectURL(blob);
-      window.open(objUrl, "_blank");
+      setReceiptUrl(objUrl);
+      setReceiptIsImage(blob.type.startsWith("image/"));
     } catch (e) {
       toastError(e instanceof Error ? e.message : "Error");
+      setReceiptModalOpen(false);
+    } finally {
+      setReceiptLoading(false);
     }
+  }
+
+  function closeReceiptModal() {
+    if (receiptUrl) URL.revokeObjectURL(receiptUrl);
+    setReceiptModalOpen(false);
+    setReceiptUrl(null);
   }
 
   async function cancelOrder(id: number) {
@@ -152,7 +169,7 @@ export default function AdminPedidosPage() {
                 <div className="flex items-center gap-3">
                   {o.payment_receipt_url && (
                     <button onClick={() => viewReceipt(o.payment_receipt_url!)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-brand-700 bg-brand-50 hover:bg-brand-100">
-                      Ver comprobante
+                      <FileImage className="w-3.5 h-3.5" /> Ver comprobante
                     </button>
                   )}
                   <span className="font-bold text-gray-900">{formatPrice(Number(o.total))}</span>
@@ -214,6 +231,22 @@ export default function AdminPedidosPage() {
           </button>
         </div>
       )}
+
+      {/* Modal comprobante */}
+      <Modal open={receiptModalOpen} onClose={closeReceiptModal} title="Comprobante de pago" size="xl">
+        {receiptLoading ? (
+          <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
+        ) : receiptUrl ? (
+          receiptIsImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={receiptUrl} alt="Comprobante" className="w-full max-h-[70vh] object-contain rounded-lg" />
+          ) : (
+            <iframe src={receiptUrl} className="w-full h-[70vh] rounded-lg border border-gray-200" title="Comprobante" />
+          )
+        ) : (
+          <p className="text-gray-500 text-center py-8">No se pudo cargar el comprobante.</p>
+        )}
+      </Modal>
     </div>
   );
 }
