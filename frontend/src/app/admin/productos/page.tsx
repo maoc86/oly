@@ -44,7 +44,7 @@ export default function AdminProductosPage() {
   const [form, setForm] = useState<ProductForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [variantProduct, setVariantProduct] = useState<Product | null>(null);
-  const [variantForm, setVariantForm] = useState({ size: "", color: "", sku: "", price_override: "", stock: "0", min_stock: "0" });
+  const [variantForm, setVariantForm] = useState({ size: "", color: "", sku: "", price_override: "", stock: "0", min_stock: "0", image_url: "" });
 
   async function load() {
     setLoading(true);
@@ -129,11 +129,12 @@ export default function AdminProductosPage() {
         size: variantForm.size || "Único",
         color: variantForm.color || undefined,
         sku: variantForm.sku || undefined,
+        image_url: variantForm.image_url || undefined,
         price_override: variantForm.price_override ? Number(variantForm.price_override) : undefined,
         stock: Number(variantForm.stock || 0),
         min_stock: Number(variantForm.min_stock || 0),
       });
-      setVariantForm({ size: "", color: "", sku: "", price_override: "", stock: "0", min_stock: "0" });
+      setVariantForm({ size: "", color: "", sku: "", price_override: "", stock: "0", min_stock: "0", image_url: "" });
       const updated = await api.get<Product>(`/admin/products/${variantProduct.id}`);
       setVariantProduct(updated);
       await load();
@@ -259,6 +260,7 @@ export default function AdminProductosPage() {
           <Input label="Talla" value={variantForm.size} onChange={(e) => setVariantForm({ ...variantForm, size: e.target.value })} placeholder="S, M, L…" />
           <Input label="Color" value={variantForm.color} onChange={(e) => setVariantForm({ ...variantForm, color: e.target.value })} />
           <Input label="SKU" value={variantForm.sku} onChange={(e) => setVariantForm({ ...variantForm, sku: e.target.value })} />
+          <Input label="Imagen (URL)" value={variantForm.image_url} onChange={(e) => setVariantForm({ ...variantForm, image_url: e.target.value })} />
           <Input label="Precio override" type="number" value={variantForm.price_override} onChange={(e) => setVariantForm({ ...variantForm, price_override: e.target.value })} />
           <Input label="Stock" type="number" value={variantForm.stock} onChange={(e) => setVariantForm({ ...variantForm, stock: e.target.value })} />
           <Input label="Stock mínimo" type="number" value={variantForm.min_stock} onChange={(e) => setVariantForm({ ...variantForm, min_stock: e.target.value })} />

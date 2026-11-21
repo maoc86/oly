@@ -155,6 +155,7 @@ class ProductVariantCreate(BaseModel):
     sku: Optional[str] = None
     size: Optional[str] = None
     color: Optional[str] = None
+    image_url: Optional[str] = None
     price_override: Optional[Decimal] = None
     stock: int = 0
     min_stock: int = 0
@@ -165,6 +166,7 @@ class ProductVariantUpdate(BaseModel):
     sku: Optional[str] = None
     size: Optional[str] = None
     color: Optional[str] = None
+    image_url: Optional[str] = None
     price_override: Optional[Decimal] = None
     stock: Optional[int] = None
     min_stock: Optional[int] = None
@@ -177,6 +179,7 @@ class ProductVariantResponse(BaseModel):
     sku: Optional[str] = None
     size: Optional[str] = None
     color: Optional[str] = None
+    image_url: Optional[str] = None
     price_override: Optional[Decimal] = None
     stock: int
     min_stock: int

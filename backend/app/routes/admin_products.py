@@ -215,6 +215,7 @@ def _add_variant(db: Session, product: Product, data: ProductVariantCreate) -> P
         sku=(data.sku or "").strip() or None,
         size=data.size or "Único",
         color=(data.color or "").strip() or None,
+        image_url=(data.image_url or "").strip() or None,
         price_override=data.price_override,
         stock=data.stock,
         min_stock=data.min_stock,

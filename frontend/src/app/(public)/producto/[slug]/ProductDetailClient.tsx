@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ShoppingBag, Check } from "lucide-react";
+import { ShoppingBag, Check, Share2, CheckCircle2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { Product } from "@/lib/types";
 import { useCart } from "@/lib/cart";
-import { usePriceFormatter } from "@/lib/currency";
+import { useCurrency, usePriceFormatter } from "@/lib/currency";
 import { normalizeImageUrl } from "@/lib/images";
 
 export default function ProductDetailClient() {
@@ -20,9 +20,11 @@ export default function ProductDetailClient() {
   const [color, setColor] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [shared, setShared] = useState(false);
 
-  const { addLine } = useCart();
+  const { currency, setCurrency } = useCurrency();
   const format = usePriceFormatter();
+  const { addLine } = useCart();
 
   useEffect(() => {
     setLoading(true);
@@ -42,10 +44,40 @@ export default function ProductDetailClient() {
   const sizes = useMemo(() => (product ? uniqueSizes(product) : []), [product]);
   const colors = useMemo(() => (product ? uniqueColors(product) : []), [product]);
 
+  // Disponibilidad considerando la selección cruzada.
+  const availableColors = useMemo(() => {
+    if (!product) return [];
+    if (!size) return colors.filter((c) => product.variants?.some((v) => v.color === c && (v.stock ?? 0) > 0));
+    return colors.filter((c) => product.variants?.some((v) => v.size === size && v.color === c && (v.stock ?? 0) > 0));
+  }, [product, size, colors]);
+
+  const availableSizes = useMemo(() => {
+    if (!product) return [];
+    if (!color) return sizes.filter((s) => product.variants?.some((v) => v.size === s && (v.stock ?? 0) > 0));
+    return sizes.filter((s) => product.variants?.some((v) => v.size === s && v.color === color && (v.stock ?? 0) > 0));
+  }, [product, color, sizes]);
+
   const variant = useMemo(() => {
     if (!product) return null;
     return product.variants?.find((v) => v.size === size && v.color === color) ?? null;
   }, [product, size, color]);
+
+  // Imagen según color seleccionado (usa la imagen de la variante si existe).
+  const mainImage = useMemo(() => {
+    if (!product) return null;
+    if (color) {
+      const v = product.variants?.find((x) => x.color === color && x.image_url);
+      if (v?.image_url) return v.image_url;
+    }
+    if (product.images?.length) return product.images[0];
+    return product.image_url ?? null;
+  }, [product, color]);
+
+  const images = useMemo(() => {
+    if (!product) return [];
+    if (product.images?.length) return product.images;
+    return product.image_url ? [product.image_url] : [];
+  }, [product]);
 
   if (loading) {
     return (
@@ -71,7 +103,6 @@ export default function ProductDetailClient() {
     );
   }
 
-  const images = product.images?.length ? product.images : product.image_url ? [product.image_url] : [];
   const effectivePrice = variant ? Number(variant.price_override ?? product.display_price) : product.display_price;
   const inStock = variant ? variant.stock > 0 : (product.stock ?? 0) > 0;
 
@@ -82,7 +113,7 @@ export default function ProductDetailClient() {
         variant_id: variant.id,
         product_id: product!.id,
         name: product!.name,
-        image: product!.image_url ?? undefined,
+        image: (variant.image_url || product!.image_url) ?? undefined,
         size: variant.size ?? undefined,
         color: variant.color ?? undefined,
         price: effectivePrice,
@@ -91,6 +122,25 @@ export default function ProductDetailClient() {
     );
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
+  }
+
+  async function share() {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: product!.name, text: product!.description || product!.name, url });
+        return;
+      } catch {
+        /* cancelado o no soportado: cae al copiado */
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch {
+      /* sin portapapeles disponible */
+    }
   }
 
   return (
@@ -107,12 +157,12 @@ export default function ProductDetailClient() {
         {/* Galería */}
         <div className="space-y-3">
           <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100">
-            {images[0] ? (
+            {mainImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={normalizeImageUrl(images[0])!}
+                src={normalizeImageUrl(mainImage)!}
                 alt={product.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-opacity duration-300"
               />
             ) : (
               <div className="h-full w-full flex items-center justify-center text-brand-200">
@@ -137,14 +187,31 @@ export default function ProductDetailClient() {
 
         {/* Info */}
         <div>
-          <p className="text-sm text-gray-400 uppercase tracking-wide">{product.brand || product.category?.name}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm text-gray-400 uppercase tracking-wide">{product.brand || product.category?.name}</p>
+            <button
+              onClick={share}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 border border-gray-200 hover:border-brand-400 hover:text-brand-700 transition-colors"
+              aria-label="Compartir producto"
+            >
+              {shared ? <CheckCircle2 className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+              {shared ? "Copiado" : "Compartir"}
+            </button>
+          </div>
           <h1 className="mt-1 text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900">{product.name}</h1>
 
-          <div className="mt-4 flex items-baseline gap-3">
+          <div className="mt-4 flex items-baseline gap-3 flex-wrap">
             <span className="text-3xl font-bold text-gray-900">{format(effectivePrice)}</span>
             {product.offer_active && product.offer_price != null && (
               <span className="text-lg text-gray-400 line-through">{format(product.price)}</span>
             )}
+            {/* Toggle de moneda */}
+            <button
+              onClick={() => setCurrency(currency === "USD" ? "VES" : "USD")}
+              className="ml-auto px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 text-gray-600 hover:border-brand-400 hover:text-brand-700 transition-colors"
+            >
+              {currency === "USD" ? "Ver en Bs." : "Ver en USD"}
+            </button>
           </div>
 
           {product.description && (
@@ -156,19 +223,25 @@ export default function ProductDetailClient() {
             <div className="mt-6">
               <p className="text-sm font-semibold text-gray-900 mb-2">Talla</p>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSize(s)}
-                    className={`min-w-12 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                      size === s
-                        ? "border-brand-500 bg-brand-50 text-brand-700"
-                        : "border-gray-300 text-gray-700 hover:border-gray-400"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+                {sizes.map((s) => {
+                  const disabled = !availableSizes.includes(s);
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => !disabled && setSize(s)}
+                      disabled={disabled}
+                      className={`min-w-12 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                        disabled
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed line-through"
+                          : size === s
+                            ? "border-brand-500 bg-brand-50 text-brand-700"
+                            : "border-gray-300 text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -178,19 +251,25 @@ export default function ProductDetailClient() {
             <div className="mt-4">
               <p className="text-sm font-semibold text-gray-900 mb-2">Color</p>
               <div className="flex flex-wrap gap-2">
-                {colors.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setColor(c)}
-                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                      color === c
-                        ? "border-brand-500 bg-brand-50 text-brand-700"
-                        : "border-gray-300 text-gray-700 hover:border-gray-400"
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
+                {colors.map((c) => {
+                  const disabled = !availableColors.includes(c);
+                  return (
+                    <button
+                      key={c}
+                      onClick={() => !disabled && setColor(c)}
+                      disabled={disabled}
+                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                        disabled
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed line-through"
+                          : color === c
+                            ? "border-brand-500 bg-brand-50 text-brand-700"
+                            : "border-gray-300 text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

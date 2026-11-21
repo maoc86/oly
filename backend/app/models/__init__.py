@@ -189,6 +189,8 @@ class ProductVariant(Base):
     sku = Column(String(80), unique=True, nullable=True, index=True)
     size = Column(String(30))          # S, M, L, XL, 36, 38... o "Único"
     color = Column(String(60))         # Negro, Blanco, Rojo...
+    # Imagen específica de esta variante (útil para cambiar la foto al elegir color).
+    image_url = Column(String(500))
     price_override = Column(Numeric(10, 2), nullable=True)
     stock = Column(Integer, default=0, nullable=False)
     min_stock = Column(Integer, default=0, nullable=False)
