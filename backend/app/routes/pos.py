@@ -251,6 +251,9 @@ def create_pos_sale(
 @router.get("/sales", response_model=list[OrderResponse])
 def list_pos_sales(
     cash_session_id: Optional[int] = None,
+    payment_method_id: Optional[int] = None,
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
     limit: int = Query(200, ge=1, le=500),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_vendedor),
@@ -267,6 +270,20 @@ def list_pos_sales(
     )
     if cash_session_id:
         q = q.filter(Order.cash_session_id == cash_session_id)
+    if payment_method_id:
+        q = q.filter(Order.payment_method_id == payment_method_id)
+    if from_date:
+        try:
+            fd = datetime.fromisoformat(from_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="from_date inválida (ISO 8601)")
+        q = q.filter(Order.created_at >= fd)
+    if to_date:
+        try:
+            td = datetime.fromisoformat(to_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="to_date inválida (ISO 8601)")
+        q = q.filter(Order.created_at <= td)
     orders = q.order_by(Order.created_at.desc(), Order.id.desc()).limit(limit).all()
     return [OrderResponse.model_validate(o) for o in orders]
 

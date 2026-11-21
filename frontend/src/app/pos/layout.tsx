@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ShoppingCart, Wallet, Receipt, Store } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { CurrencyProvider } from "@/lib/currency";
 import BrandLogo from "@/components/BrandLogo";
 
 export default function PosLayout({ children }: { children: React.ReactNode }) {
@@ -63,7 +64,9 @@ export default function PosLayout({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
       </header>
-      <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <CurrencyProvider>
+        <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      </CurrencyProvider>
     </div>
   );
 }

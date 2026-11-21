@@ -25,7 +25,7 @@ function ves(n: number): string {
 
 export default function PosPage() {
   const { config } = useSiteConfig();
-  const { bsRate } = useCurrency();
+  const { bsRate, loading: currencyLoading } = useCurrency();
 
   const [catalog, setCatalog] = useState<PosProduct[]>([]);
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
@@ -73,10 +73,15 @@ export default function PosPage() {
 
   // Importe a cobrar según la moneda del método de pago.
   const chargeCurrency = selectedMethod?.currency || "USD";
-  const chargeAmount = chargeCurrency === "VES" ? totalUsd * (bsRate ?? 0) : totalUsd;
+  const rateReady = chargeCurrency === "USD" || (bsRate != null && bsRate > 0);
+  const chargeAmount = rateReady
+    ? chargeCurrency === "VES"
+      ? totalUsd * (bsRate ?? 0)
+      : totalUsd
+    : 0;
 
   const change =
-    selectedMethod?.is_cash && received !== ""
+    selectedMethod?.is_cash && received !== "" && rateReady
       ? Number(received) - chargeAmount
       : null;
 
@@ -230,7 +235,15 @@ export default function PosPage() {
           <div className="flex justify-between text-gray-600"><span>IVA ({Number(config.tax_percent || 0)}%)</span><span>{usd(tax)}</span></div>
           <div className="flex justify-between text-lg font-bold text-gray-900">
             <span>Total</span>
-            <span>{chargeCurrency === "VES" ? ves(chargeAmount) : usd(chargeAmount)}</span>
+            <span>
+              {chargeCurrency === "VES"
+                ? rateReady
+                  ? ves(chargeAmount)
+                  : currencyLoading
+                    ? "Cargando tasa…"
+                    : "Sin tasa de cambio"
+                : usd(chargeAmount)}
+            </span>
           </div>
         </div>
 
@@ -271,7 +284,7 @@ export default function PosPage() {
           <input value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} placeholder="Correo (opcional)" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
 
-        <button onClick={submitSale} disabled={saving || lines.length === 0} className="mt-5 w-full px-6 py-3.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-500 disabled:opacity-50">
+        <button onClick={submitSale} disabled={saving || lines.length === 0 || (chargeCurrency === "VES" && !rateReady)} className="mt-5 w-full px-6 py-3.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-500 disabled:opacity-50">
           {saving ? "Registrando…" : "Cobrar y registrar venta"}
         </button>
       </div>
