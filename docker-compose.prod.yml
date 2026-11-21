@@ -94,8 +94,3 @@ volumes:
   db_data:
   uploads_data:
   receipts_data:
-
-networks:
-  default:
-    name: ticketve_default
-    external: true
