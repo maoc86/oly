@@ -6,6 +6,12 @@ import HeroCarousel from "@/components/HeroCarousel";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Inicio",
+  description:
+    "Ropa deportiva para mujeres que entrenan sin límites. Leggings, tops, conjuntos y más. Compra online con envío a toda Venezuela.",
+};
+
 const API_URL =
   process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 

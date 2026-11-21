@@ -29,6 +29,13 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
   keywords: ["ropa deportiva", "mujer", "leggings", "fitness", "oly", SITE_NAME],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "es_ES",
