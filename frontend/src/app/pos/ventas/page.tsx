@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Filter, RefreshCw, Receipt, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Filter, RefreshCw, Receipt, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { Order, PaymentMethod, CashSession } from "@/lib/types";
 import { EmptyState } from "@/components/ui";
 import { formatPrice } from "@/lib/format";
-import { toastError } from "@/lib/toast";
+import { toastError, toastSuccess } from "@/lib/toast";
+import { confirmDialog } from "@/lib/confirm";
 
 function fmtDate(iso?: string | null): string {
   if (!iso) return "—";
@@ -88,6 +89,17 @@ export default function PosVentasPage() {
     }, {});
     return { count, totalUsd, byCurrency, byMethod };
   }, [filtered]);
+
+  async function cancelSale(id: number) {
+    if (!(await confirmDialog({ message: "¿Anular esta venta? Se devolverá el stock y se revertirá el ingreso en caja.", danger: true }))) return;
+    try {
+      await api.post(`/pos/sales/${id}/cancel`);
+      toastSuccess("Venta anulada.");
+      load();
+    } catch (e) {
+      toastError(e instanceof Error ? e.message : "Error al anular");
+    }
+  }
 
   function clearFilters() {
     setSearch("");
@@ -235,6 +247,13 @@ export default function PosVentasPage() {
                       <span>Total</span>
                       <span>{formatPrice(Number(o.total))}</span>
                     </div>
+                    {o.status === "completed" && (
+                      <div className="mt-3 flex justify-end">
+                        <button onClick={() => cancelSale(o.id)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100">
+                          <Trash2 className="w-4 h-4" /> Anular venta
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

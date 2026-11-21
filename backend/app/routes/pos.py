@@ -16,6 +16,9 @@ from app.database import get_db
 from app.models import (
     CashSession,
     CashSessionStatus,
+    FinanceEntry,
+    FinanceEntryType,
+    InventoryMovement,
     Order,
     OrderItem,
     OrderStatus,
@@ -437,6 +440,63 @@ def admin_get_cash_session(
 
 
 
-def _is_admin(user: User) -> bool:
-    from app.permissions import is_admin
-    return is_admin(user)
+# ─── Cancelación de venta POS ─────────────────────────────────────────
+
+@router.post("/sales/{order_id}/cancel", response_model=OrderResponse)
+def cancel_pos_sale(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_vendedor),
+):
+    """Anula una venta POS ya completada: revierte el stock y el ingreso de caja."""
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.items).joinedload(OrderItem.variant))
+        .filter(Order.id == order_id)
+        .first()
+    )
+    if not order:
+        raise HTTPException(status_code=404, detail="Venta no encontrada")
+    if order.channel != "pos":
+        raise HTTPException(status_code=400, detail="Esta no es una venta del POS")
+    if order.sold_by_id != current_user.id and not _is_admin(current_user):
+        raise HTTPException(status_code=403, detail="No autorizado")
+    if order.status == OrderStatus.CANCELLED:
+        return OrderResponse.model_validate(order)
+    if order.status != OrderStatus.COMPLETED:
+        raise HTTPException(status_code=400, detail="Solo se pueden anular ventas completadas")
+
+    for item in order.items:
+        variant = item.variant
+        if variant:
+            previous_stock = variant.stock
+            variant.stock = (variant.stock or 0) + item.quantity
+            db.add(
+                InventoryMovement(
+                    product_id=variant.product_id,
+                    product_variant_id=variant.id,
+                    user_id=current_user.id,
+                    movement_type="return",
+                    quantity=item.quantity,
+                    previous_stock=previous_stock,
+                    new_stock=variant.stock,
+                    reference=f"Anulación venta POS #{order.id}",
+                )
+            )
+
+    # Revierte el ingreso automático de la venta.
+    income_entry = (
+        db.query(FinanceEntry)
+        .filter(
+            FinanceEntry.related_order_id == order.id,
+            FinanceEntry.type == FinanceEntryType.INCOME,
+        )
+        .first()
+    )
+    if income_entry:
+        db.delete(income_entry)
+
+    order.status = OrderStatus.CANCELLED
+    db.commit()
+    db.refresh(order)
+    return OrderResponse.model_validate(order)
