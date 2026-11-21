@@ -231,8 +231,20 @@ export default function PosPage() {
 
         {/* Totales */}
         <div className="mt-3 border-t border-gray-100 pt-3 space-y-1 text-sm">
-          <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>{usd(subtotal)}</span></div>
-          <div className="flex justify-between text-gray-600"><span>IVA ({Number(config.tax_percent || 0)}%)</span><span>{usd(tax)}</span></div>
+          <div className="flex justify-between text-gray-600">
+            <span>Subtotal</span>
+            <span>
+              {chargeCurrency === "VES" && rateReady ? ves(subtotal * (bsRate ?? 0)) : usd(subtotal)}
+              {chargeCurrency === "VES" && rateReady && <span className="text-gray-400 ml-1.5 text-xs">({usd(subtotal)})</span>}
+            </span>
+          </div>
+          <div className="flex justify-between text-gray-600">
+            <span>IVA ({Number(config.tax_percent || 0)}%)</span>
+            <span>
+              {chargeCurrency === "VES" && rateReady ? ves(tax * (bsRate ?? 0)) : usd(tax)}
+              {chargeCurrency === "VES" && rateReady && <span className="text-gray-400 ml-1.5 text-xs">({usd(tax)})</span>}
+            </span>
+          </div>
           <div className="flex justify-between text-lg font-bold text-gray-900">
             <span>Total</span>
             <span>
