@@ -198,21 +198,29 @@ export default function PosVentasPage() {
             const isOpen = expanded === o.id;
             return (
               <div key={o.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <button
-                  onClick={() => setExpanded(isOpen ? null : o.id)}
-                  className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-gray-50"
-                >
-                  <div className="min-w-0 flex-1">
+                <div className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50">
+                  <button onClick={() => setExpanded(isOpen ? null : o.id)} className="min-w-0 flex-1 text-left">
                     <p className="font-medium text-gray-900">#{o.id} · {o.buyer_name || "Cliente mostrador"}</p>
                     <p className="text-sm text-gray-500">
                       {fmtDate(o.created_at)} · {o.items.reduce((a, i) => a + i.quantity, 0)} artículo(s) · {o.payment_method_name || "Sin método"}
                     </p>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
+                  </button>
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-3">
                     <span className="font-bold text-gray-900">{formatPrice(Number(o.total))}</span>
-                    {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                    {o.status === "completed" && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); cancelSale(o.id); }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100"
+                        title="Anular venta"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Anular
+                      </button>
+                    )}
+                    <button onClick={() => setExpanded(isOpen ? null : o.id)} className="p-1 text-gray-400 hover:text-gray-600">
+                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
                   </div>
-                </button>
+                </div>
 
                 {isOpen && (
                   <div className="px-5 pb-4 border-t border-gray-100">

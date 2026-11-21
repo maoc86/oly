@@ -127,6 +127,13 @@ export default function AdminPedidosPage() {
                   </button>
                 </div>
               )}
+              {o.status === "completed" && (
+                <div className="mt-4 flex justify-end">
+                  <button onClick={() => cancelOrder(o.id)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100">
+                    <XCircle className="w-4 h-4" /> Anular venta
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

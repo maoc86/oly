@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models import (
+    FinanceEntry,
+    FinanceEntryType,
     InventoryMovement,
     Order,
     OrderItem,
@@ -248,7 +250,13 @@ def admin_cancel_order(
     if order.status == OrderStatus.CANCELLED:
         return OrderResponse.model_validate(order)
     if order.status == OrderStatus.COMPLETED:
-        raise HTTPException(status_code=400, detail="La orden ya está completada y no puede cancelarse aquí.")
+        # Revierte el ingreso automático (si existía) para cerrar la cuenta.
+        income_entry = db.query(FinanceEntry).filter(
+            FinanceEntry.related_order_id == order.id,
+            FinanceEntry.type == FinanceEntryType.INCOME,
+        ).first()
+        if income_entry:
+            db.delete(income_entry)
 
     for item in order.items:
         variant = item.variant
