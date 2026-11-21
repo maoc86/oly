@@ -15,7 +15,7 @@ import { toastError } from "@/lib/toast";
 import { normalizeImageUrl } from "@/lib/images";
 
 export default function CheckoutPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, updateUser } = useAuth();
   const { cart, total, clearCart } = useCart();
   const { currency, bsRate, setCurrency } = useCurrency();
   const { config } = useSiteConfig();
@@ -36,6 +36,9 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
+  const [buyerName, setBuyerName] = useState("");
+  const [buyerCedula, setBuyerCedula] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState("");
   const [terms, setTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +51,22 @@ export default function CheckoutPage() {
 
   const pm = methods.find((m) => m.id === pmId) || null;
   const shippingMethod = shippingMethods.find((s) => s.id === shippingId) || null;
+
+  // Precarga los datos del comprador desde el perfil.
+  useEffect(() => {
+    if (user) {
+      setBuyerName(user.name || "");
+      setBuyerCedula(user.cedula || "");
+      setBuyerPhone(user.phone || "");
+    }
+  }, [user]);
+
+  // La moneda de la compra sigue la del método de pago seleccionado.
+  useEffect(() => {
+    if (pm?.currency) {
+      setCurrency(pm.currency === "VES" ? "VES" : "USD");
+    }
+  }, [pm, setCurrency]);
 
   const discount = coupon?.discount ?? 0;
   const taxable = Math.max(0, total - discount);
@@ -124,6 +143,20 @@ export default function CheckoutPage() {
 
     setSubmitting(true);
     try {
+      // Si el comprador completó o modificó sus datos, los guardamos en su perfil.
+      if (user && (buyerName.trim() !== (user.name || "") || buyerCedula.trim() !== (user.cedula || "") || buyerPhone.trim() !== (user.phone || ""))) {
+        try {
+          const updated = await api.patch<any>("/auth/me", {
+            name: buyerName.trim() || user.name,
+            cedula: buyerCedula.trim() || undefined,
+            phone: buyerPhone.trim() || undefined,
+          });
+          if (updated) updateUser(updated);
+        } catch {
+          /* no bloqueamos la compra si falla la actualización del perfil */
+        }
+      }
+
       await api.post("/orders", {
         items: cart.lines.map((l) => ({ product_variant_id: l.variant_id, quantity: l.quantity })),
         payment_method_id: pm.id,
@@ -188,6 +221,38 @@ export default function CheckoutPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Formulario */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Datos del comprador */}
+          <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-brand-600" />
+              <h2 className="font-semibold text-gray-900">Datos del comprador</h2>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                <input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} placeholder="Tu nombre" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cédula</label>
+                  <input value={buyerCedula} onChange={(e) => setBuyerCedula(e.target.value)} placeholder="V-12345678" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                  <input value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} placeholder="0412-0000000" className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                <input value={user?.email || ""} readOnly className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500" />
+                <p className="text-xs text-gray-400 mt-1">El correo de tu cuenta. No se puede modificar aquí.</p>
+              </div>
+              {(buyerCedula || buyerPhone) && (buyerCedula !== (user?.cedula || "") || buyerPhone !== (user?.phone || "") || buyerName.trim() !== (user?.name || "")) && (
+                <p className="text-xs text-brand-600">Se guardarán los datos actualizados en tu perfil.</p>
+              )}
+            </div>
+          </section>
+
           {/* Envío */}
           <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
