@@ -298,7 +298,7 @@ export default function AdminPagosPage() {
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
                     {p.available_at_pos && (
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand-100 text-brand-800">
-                        Taquilla
+                        POS
                       </span>
                     )}
                     {p.is_cash && (
@@ -405,7 +405,7 @@ export default function AdminPagosPage() {
           </label>
 
           <div className="border-t border-gray-100 pt-4 space-y-3">
-            <p className="text-sm font-semibold text-gray-900">Taquilla (venta presencial)</p>
+            <p className="text-sm font-semibold text-gray-900">POS (venta presencial)</p>
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input
                 type="checkbox"
@@ -413,7 +413,7 @@ export default function AdminPagosPage() {
                 onChange={(e) => setForm((prev) => ({ ...prev, available_at_pos: e.target.checked }))}
                 className="w-4 h-4"
               />
-              Disponible para cobrar en el POS
+              Disponible para cobrar en el POS (tienda)
             </label>
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input

@@ -26,6 +26,7 @@ from app.site_config import get_config
 from app.utils.auth import get_current_user, require_permission
 from app.utils.rate_limit import order_rate_limit
 from app.mailer import build_order_context, send_template_email
+from app.routes.dashboard import invalidate_dashboard_cache
 from app.services.sales import reserve_order
 from app.routes.coupons import apply_coupon_to_order, release_coupon
 from app.routes.admin_finance import record_sale_income
@@ -145,6 +146,14 @@ def create_order(
     # Queda PENDING: se completa cuando el admin confirma el pago.
     db.commit()
     db.refresh(order)
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
     send_template_email(
         db,
         "order_created",
@@ -189,6 +198,9 @@ def get_order(
 @router.get("/admin/all", response_model=list[OrderResponse])
 def admin_list_orders(
     status: str = None,
+    channel: str = None,
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
@@ -200,6 +212,20 @@ def admin_list_orders(
             query = query.filter(Order.status == OrderStatus(status))
         except ValueError:
             raise HTTPException(status_code=400, detail="Estado inválido")
+    if channel:
+        query = query.filter(Order.channel == channel)
+    if from_date:
+        try:
+            fd = datetime.fromisoformat(from_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="from_date inválida")
+        query = query.filter(Order.created_at >= fd)
+    if to_date:
+        try:
+            td = datetime.fromisoformat(to_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="to_date inválida")
+        query = query.filter(Order.created_at <= td)
     orders = query.order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
     return [OrderResponse.model_validate(o) for o in orders]
 
@@ -230,6 +256,10 @@ def admin_confirm_order(
     record_sale_income(db, order)
     db.commit()
     db.refresh(order)
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
 
     buyer = order.user
     if buyer:
@@ -283,6 +313,10 @@ def admin_cancel_order(
     release_coupon(db, order)
     db.commit()
     db.refresh(order)
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
 
     buyer = order.user
     if buyer:

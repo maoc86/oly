@@ -45,6 +45,7 @@ from app.schemas import (
 )
 from app.services.sales import reserve_order, _money
 from app.utils.auth import require_permission, require_vendedor
+from app.routes.dashboard import invalidate_dashboard_cache
 from app.utils.rate_limit import pos_sale_rate_limit
 
 router = APIRouter(prefix="/pos", tags=["pos"])
@@ -251,6 +252,10 @@ def create_pos_sale(
     record_sale_income(db, order)
     db.commit()
     db.refresh(order)
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
 
     return OrderResponse.model_validate(order)
 

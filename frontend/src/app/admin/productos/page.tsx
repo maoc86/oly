@@ -39,6 +39,7 @@ export default function AdminProductosPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [lowStockOnly, setLowStockOnly] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<ProductForm>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -167,17 +168,21 @@ export default function AdminProductosPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar…" className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm" />
           </div>
+          <label className="inline-flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 cursor-pointer">
+            <input type="checkbox" checked={lowStockOnly} onChange={(e) => setLowStockOnly(e.target.checked)} />
+            Solo bajo stock
+          </label>
           <Button onClick={openCreate}><Plus className="w-4 h-4" /> Nuevo producto</Button>
         </div>
       </div>
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-40 bg-gray-200 rounded-2xl animate-pulse" />)}</div>
-      ) : products.length === 0 ? (
-        <EmptyState message="No hay productos. Crea el primero." />
+      ) : products.filter((p) => !lowStockOnly || (p.variants || []).some((v) => v.min_stock > 0 && v.stock <= v.min_stock)).length === 0 ? (
+        <EmptyState message={lowStockOnly ? "No hay productos con stock bajo." : "No hay productos. Crea el primero."} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
+          {products.filter((p) => !lowStockOnly || (p.variants || []).some((v) => v.min_stock > 0 && v.stock <= v.min_stock)).map((p) => (
             <div key={p.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
               <div className="flex items-start gap-3">
                 <div className="w-16 h-20 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">

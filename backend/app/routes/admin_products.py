@@ -22,6 +22,7 @@ from app.schemas import (
 )
 from app.routes.products import product_to_detail, product_to_list
 from app.utils.auth import require_permission
+from app.routes.dashboard import invalidate_dashboard_cache
 
 router = APIRouter(prefix="/admin/products", tags=["admin-products"])
 inventory_router = APIRouter(prefix="/admin/inventory", tags=["admin-inventory"])
@@ -114,6 +115,10 @@ def create_product(
 
     db.commit()
     db.refresh(product)
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
     return product_to_detail(product)
 
 
@@ -166,6 +171,10 @@ def update_product(
 
     db.commit()
     db.refresh(product)
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
     return product_to_detail(product)
 
 
@@ -189,6 +198,10 @@ def delete_product(
         raise HTTPException(status_code=400, detail=f"No se puede eliminar: el producto tiene {mov_count} movimiento(s) de inventario. Desactivá el producto en su lugar.")
     db.delete(product)
     db.commit()
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
     return {"detail": "Producto eliminado"}
 
 
@@ -362,6 +375,10 @@ def create_movement(
     db.add(movement)
     db.commit()
     db.refresh(movement)
+    try:
+        invalidate_dashboard_cache()
+    except Exception:
+        pass
 
     return InventoryMovementResponse(
         id=movement.id,

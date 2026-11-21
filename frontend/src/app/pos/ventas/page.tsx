@@ -101,6 +101,51 @@ export default function PosVentasPage() {
     }
   }
 
+  function printSale(o: Order) {
+    const w = window.open("", "_blank", "width=400,height=600");
+    if (!w) return;
+    const items = o.items.map((i) => `
+      <tr>
+        <td>${i.product_name || "Producto"}${i.size || i.color ? ` (${[i.size, i.color].filter(Boolean).join("/")})` : ""}</td>
+        <td style="text-align:center">${i.quantity}</td>
+        <td style="text-align:right">$${Number(i.subtotal).toFixed(2)}</td>
+      </tr>`).join("");
+    w.document.write(`<!DOCTYPE html><html><head><title>Ticket #${o.id}</title>
+      <style>
+        body { font-family: monospace; font-size: 12px; margin: 10px; }
+        h1 { font-size: 16px; text-align: center; margin: 0 0 8px; }
+        .center { text-align: center; }
+        table { width: 100%; border-collapse: collapse; }
+        td, th { padding: 2px 0; }
+        .right { text-align: right; }
+        .total { font-weight: bold; font-size: 14px; }
+        .line { border-top: 1px dashed #999; margin: 8px 0; }
+        .muted { color: #666; font-size: 10px; }
+      </style></head><body>
+      <h1>Oly Official</h1>
+      <p class="center muted">Ticket de venta</p>
+      <div class="line"></div>
+      <p>Pedido #${o.id}</p>
+      <p>Fecha: ${new Date(o.created_at || "").toLocaleString("es-VE")}</p>
+      ${o.buyer_name ? `<p>Cliente: ${o.buyer_name}</p>` : ""}
+      ${o.buyer_cedula ? `<p>Cédula: ${o.buyer_cedula}</p>` : ""}
+      <div class="line"></div>
+      <table><thead><tr><th style="text-align:left">Producto</th><th style="text-align:center">Cant</th><th style="text-align:right">Subtotal</th></tr></thead>
+      <tbody>${items}</tbody></table>
+      <div class="line"></div>
+      <table>
+        <tr><td>Subtotal</td><td class="right">$${Number(o.subtotal).toFixed(2)}</td></tr>
+        <tr><td>IVA</td><td class="right">$${Number(o.tax).toFixed(2)}</td></tr>
+        <tr class="total"><td>TOTAL</td><td class="right">$${Number(o.total).toFixed(2)}</td></tr>
+      </table>
+      <div class="line"></div>
+      <p class="center muted">Método: ${o.payment_method_name || "—"}${o.payment_reference ? ` (ref: ${o.payment_reference})` : ""}</p>
+      <p class="center muted">¡Gracias por tu compra!</p>
+      <script>window.onload = () => { window.print(); }</script>
+    </body></html>`);
+    w.document.close();
+  }
+
   function clearFilters() {
     setSearch("");
     setPmId("");
@@ -256,7 +301,10 @@ export default function PosVentasPage() {
                       <span>{formatPrice(Number(o.total))}</span>
                     </div>
                     {o.status === "completed" && (
-                      <div className="mt-3 flex justify-end">
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button onClick={() => printSale(o)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-50 text-brand-700 text-sm font-medium hover:bg-brand-100">
+                          Imprimir ticket
+                        </button>
                         <button onClick={() => cancelSale(o.id)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100">
                           <Trash2 className="w-4 h-4" /> Anular venta
                         </button>

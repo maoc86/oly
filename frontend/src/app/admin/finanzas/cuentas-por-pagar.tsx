@@ -115,6 +115,8 @@ export default function CuentasPorPagar() {
   });
   const [saving, setSaving] = useState(false);
   const [activeRate, setActiveRate] = useState<number | null>(null);
+  const [payableFrom, setPayableFrom] = useState("");
+  const [payableTo, setPayableTo] = useState("");
 
   async function reload() {
     const [p, v, pay, po, m] = await Promise.all([
@@ -168,12 +170,20 @@ export default function CuentasPorPagar() {
   const pendingPayablesByVendor = useMemo(() => {
     const map: Record<number, Payable[]> = {};
     for (const p of payables) {
-      if (p.status === "pending") {
-        (map[p.vendor_id] = map[p.vendor_id] || []).push(p);
+      if (p.status !== "pending") continue;
+      if (payableFrom) {
+        const from = new Date(payableFrom);
+        if (p.due_date && new Date(p.due_date) < from) continue;
       }
+      if (payableTo) {
+        const to = new Date(payableTo);
+        to.setHours(23, 59, 59, 999);
+        if (p.due_date && new Date(p.due_date) > to) continue;
+      }
+      (map[p.vendor_id] = map[p.vendor_id] || []).push(p);
     }
     return map;
-  }, [payables]);
+  }, [payables, payableFrom, payableTo]);
 
   function openVendor(v?: Vendor) {
     setVendorForm(v ? { id: v.id, name: v.name, category: v.category || "", phone: v.phone || "", email: v.email || "", rif: v.rif || "", notes: v.notes || "" } : { id: null, name: "", category: "", phone: "", email: "", rif: "", notes: "" });
@@ -258,6 +268,43 @@ export default function CuentasPorPagar() {
     } catch (e) {
       toastError(e instanceof Error ? e.message : "Error");
     }
+  }
+
+  function exportPayablesCsv() {
+    const rows = payables.filter((p) => {
+      if (payableFrom) {
+        const from = new Date(payableFrom);
+        if (p.due_date && new Date(p.due_date) < from) return false;
+      }
+      if (payableTo) {
+        const to = new Date(payableTo);
+        to.setHours(23, 59, 59, 999);
+        if (p.due_date && new Date(p.due_date) > to) return false;
+      }
+      return true;
+    });
+    const header = ["ID", "Proveedor", "Descripción", "Monto", "Moneda", "USD", "Vencimiento", "Estado"];
+    const lines = [header.join(",")];
+    for (const p of rows) {
+      const vendor = vendors.find((v) => v.id === p.vendor_id);
+      lines.push([
+        p.id,
+        `"${(vendor?.name || "").replace(/"/g, '""')}"`,
+        `"${(p.description || "").replace(/"/g, '""')}"`,
+        p.amount,
+        p.currency,
+        p.amount_usd,
+        p.due_date || "",
+        p.status,
+      ].join(","));
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cuentas-por-pagar-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async function cancelPayable(p: Payable) {
@@ -374,6 +421,19 @@ export default function CuentasPorPagar() {
         <Button onClick={() => openPayout()}>
           <HandCoins className="w-4 h-4" /> Registrar pago
         </Button>
+        <Button variant="secondary" onClick={exportPayablesCsv}>
+          Exportar CSV
+        </Button>
+      </div>
+
+      {/* Filtro por fecha de vencimiento */}
+      <div className="flex flex-wrap items-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+        <span className="text-sm font-medium text-gray-700">Filtrar cuentas por vencimiento:</span>
+        <input type="date" value={payableFrom} onChange={(e) => setPayableFrom(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" title="Desde" />
+        <input type="date" value={payableTo} onChange={(e) => setPayableTo(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" title="Hasta" />
+        {(payableFrom || payableTo) && (
+          <button onClick={() => { setPayableFrom(""); setPayableTo(""); }} className="text-xs text-brand-700 hover:underline">Limpiar</button>
+        )}
       </div>
 
       {/* Acreedores (cuentas por pagar) */}

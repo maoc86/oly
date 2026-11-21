@@ -908,7 +908,7 @@ export default function AdminConfiguracionPage() {
               label="Enlace del botón"
               value={form.cta_link}
               onChange={(e) => setForm((prev) => ({ ...prev, cta_link: e.target.value }))}
-              placeholder="/eventos"
+              placeholder="/productos"
             />
           </div>
           <div>
@@ -917,7 +917,7 @@ export default function AdminConfiguracionPage() {
               type="text"
               value={(form as any).link_url || ""}
               onChange={(e) => setForm((prev) => ({ ...prev, link_url: e.target.value }))}
-              placeholder="/eventos/123 o https://..."
+              placeholder="/productos/123 o https://..."
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
             />
             <p className="text-xs text-gray-500 mt-1">

@@ -10,8 +10,8 @@ import { confirmDialog } from "@/lib/confirm";
 import { Plus, Pencil, Trash2, Mail, Braces, Send } from "lucide-react";
 
 const EMAIL_TEMPLATE_VARIABLES = [
-  "nombre", "evento", "fecha", "hora", "lugar", "cantidad", "total", "moneda",
-  "metodo_pago", "referencia", "orden", "link", "expira", "plataforma", "soporte",
+  "nombre", "orden", "cantidad", "productos", "subtotal", "descuento", "impuesto",
+  "envio", "total", "moneda", "metodo_pago", "referencia", "link", "plataforma", "soporte",
 ];
 
 interface EmailTemplateForm {

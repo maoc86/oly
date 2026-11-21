@@ -13,23 +13,49 @@ export default function AdminPedidosPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("");
+  const [channel, setChannel] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const LIMIT = 20;
+  const [hasMore, setHasMore] = useState(false);
 
   async function load() {
     setLoading(true);
     const q = new URLSearchParams();
     if (status) q.set("status", status);
+    if (channel) q.set("channel", channel);
+    if (fromDate) q.set("from_date", new Date(fromDate).toISOString());
+    if (toDate) { const d = new Date(toDate); d.setHours(23, 59, 59, 999); q.set("to_date", d.toISOString()); }
+    q.set("skip", String(page * LIMIT));
+    q.set("limit", String(LIMIT + 1));
     try {
       const data = await api.get<Order[]>(`/orders/admin/all?${q.toString()}`);
-      setOrders(data);
+      setHasMore(data.length > LIMIT);
+      setOrders(data.slice(0, LIMIT));
     } catch {
       setOrders([]);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { load(); }, [status]);
+  useEffect(() => { load(); }, [status, channel, fromDate, toDate, page]);
+
+  function clearFilters() {
+    setStatus("");
+    setChannel("");
+    setFromDate("");
+    setToDate("");
+    setSearch("");
+    setPage(0);
+  }
+
+  const hasFilters = status || channel || fromDate || toDate || search;
+
+
 
   async function confirmOrder(id: number) {
     try {
@@ -81,17 +107,27 @@ export default function AdminPedidosPage() {
           <h1 className="text-2xl font-bold text-gray-900">Pedidos</h1>
           <p className="text-sm text-gray-500 mt-1">Confirmá los pagos y gestioná las ventas.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar…" className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm" />
           </div>
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
+          <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(0); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
             <option value="">Todos</option>
             <option value="pending">Pendientes</option>
             <option value="completed">Completados</option>
             <option value="cancelled">Cancelados</option>
           </select>
+          <select value={channel} onChange={(e) => { setChannel(e.target.value); setPage(0); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
+            <option value="">Todos los canales</option>
+            <option value="online">Online</option>
+            <option value="pos">POS</option>
+          </select>
+          <input type="date" value={fromDate} onChange={(e) => { setFromDate(e.target.value); setPage(0); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" title="Desde" />
+          <input type="date" value={toDate} onChange={(e) => { setToDate(e.target.value); setPage(0); }} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" title="Hasta" />
+          {hasFilters && (
+            <button onClick={clearFilters} className="px-3 py-2 text-sm text-brand-700 hover:underline">Limpiar</button>
+          )}
         </div>
       </div>
 
@@ -156,6 +192,26 @@ export default function AdminPedidosPage() {
               )}
             </div>
           ))}
+        </div>
+      )}
+      {/* Paginación */}
+      {!loading && (orders.length > 0 || page > 0) && (
+        <div className="mt-6 flex items-center justify-between">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            ← Anterior
+          </button>
+          <span className="text-sm text-gray-500">Página {page + 1}</span>
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!hasMore}
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Siguiente →
+          </button>
         </div>
       )}
     </div>
