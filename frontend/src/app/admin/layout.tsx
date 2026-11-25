@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import {
   LayoutDashboard, Users, CreditCard, Receipt, LogOut, Tags,
   Settings, Wallet, Mail, Menu, X, Activity, Package, Boxes,
-  Percent, Truck, UserRound, Banknote, ChevronLeft, ChevronRight, Store,
+  Percent, Truck, UserRound, Banknote, ChevronLeft, ChevronRight, Store, Calculator,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
@@ -43,6 +43,7 @@ const navItems: NavItem[] = [
   { href: "/admin/clientes", label: "Clientes", icon: UserRound, perm: "orders.view_all", group: "ventas" },
   { href: "/admin/cajas", label: "Cajas (POS)", icon: Wallet, perm: "cash.view_all", group: "ventas" },
   { href: "/admin/finanzas", label: "Finanzas", icon: Wallet, perm: "finance.view_all", group: "finanzas" },
+  { href: "/admin/costos", label: "Costos y precios", icon: Calculator, perm: "finance.view_all", group: "finanzas" },
   { href: "/admin/tasas", label: "Tasas de cambio", icon: Banknote, perm: "settings.manage", group: "finanzas" },
   { href: "/admin/usuarios", label: "Usuarios", icon: Users, perm: "users.manage", group: "usuarios" },
   { href: "/admin/pagos", label: "Métodos de pago", icon: CreditCard, perm: "payments.manage", group: "sistema" },
@@ -62,6 +63,7 @@ const BREADCRUMBS: Record<string, string[]> = {
   "/admin/clientes": ["Clientes"],
   "/admin/cajas": ["Cajas (POS)"],
   "/admin/finanzas": ["Finanzas"],
+  "/admin/costos": ["Costos y precios"],
   "/admin/tasas": ["Tasas de cambio"],
   "/admin/usuarios": ["Usuarios"],
   "/admin/pagos": ["Métodos de pago"],

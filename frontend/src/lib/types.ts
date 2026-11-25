@@ -463,6 +463,50 @@ export interface CashSessionSummary {
   total_usd: number;
 }
 
+export interface CostingConfig {
+  operational_expenses: number;
+  fixed_expenses: number;
+  estimated_monthly_units: number;
+  profit_margin_percent: number;
+  tax_rate_percent: number;
+}
+
+export interface CostingAnalysisItem {
+  product_id: number;
+  name: string;
+  sku?: string | null;
+  image_url?: string | null;
+  category?: string | null;
+  category_id?: number | null;
+  is_active: boolean;
+  product_cost: number;
+  allocated_operational: number;
+  allocated_fixed: number;
+  total_cost: number;
+  profit_margin_percent: number;
+  margin_amount: number;
+  price_before_tax: number;
+  tax_rate_percent: number;
+  tax_amount: number;
+  suggested_price: number;
+  current_price: number;
+  difference: number;
+  margin_on_current_percent: number;
+  has_cost: boolean;
+}
+
+export interface CostingAnalysisResponse {
+  config: CostingConfig;
+  total: number;
+  items: CostingAnalysisItem[];
+  summary: {
+    total_products: number;
+    products_with_cost: number;
+    products_without_cost: number;
+    avg_total_cost: number;
+    avg_margin_on_current_percent: number;
+  };
+}
 export interface CashSession {
   id: number;
   user_id: number;

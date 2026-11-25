@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Package, Search } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Plus, Pencil, Trash2, Package, Search, Download, Upload, Filter, CheckCircle, AlertTriangle } from "lucide-react";
 import { api } from "@/lib/api";
 import { Product, Category, ProductVariant } from "@/lib/types";
 import { Button, Input, TextArea, Select, Modal, EmptyState } from "@/components/ui";
@@ -34,21 +34,40 @@ const emptyForm: ProductForm = {
   image_url: "", is_featured: false, is_new: false, is_active: true,
 };
 
+interface BulkResult {
+  created_products: number;
+  created_variants: number;
+  errors: { row: number; error?: string; warning?: string; sheet?: string }[];
+  total_errors: number;
+  total_warnings: number;
+}
+
 export default function AdminProductosPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [lowStockOnly, setLowStockOnly] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<ProductForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [variantProduct, setVariantProduct] = useState<Product | null>(null);
   const [variantForm, setVariantForm] = useState({ size: "", color: "", sku: "", price_override: "", stock: "0", min_stock: "0", image_url: "" });
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const [bulkResult, setBulkResult] = useState<BulkResult | null>(null);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     setLoading(true);
-    const q = search ? `?search=${encodeURIComponent(search)}` : "";
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (categoryFilter) params.set("category_id", categoryFilter);
+    if (statusFilter === "active") params.set("is_active", "true");
+    if (statusFilter === "inactive") params.set("is_active", "false");
+    const q = params.toString() ? `?${params.toString()}` : "";
     try {
       const data = await api.get<{ total: number; items: Product[] }>(`/admin/products${q}`);
       setProducts(data.items);
@@ -59,7 +78,7 @@ export default function AdminProductosPage() {
     }
   }
 
-  useEffect(() => { load(); }, [search]);
+  useEffect(() => { load(); }, [search, categoryFilter, statusFilter]);
   useEffect(() => { api.get<Category[]>("/admin/categories").then(setCategories).catch(() => {}); }, []);
 
   function openCreate() {
@@ -157,6 +176,60 @@ export default function AdminProductosPage() {
     }
   }
 
+  async function downloadTemplate() {
+    try {
+      await api.download("/admin/products/import/template", "plantilla_productos_oly.xlsx");
+      toastSuccess("Plantilla descargada.");
+    } catch (e) {
+      toastError(e instanceof Error ? e.message : "Error al descargar plantilla");
+    }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBulkUploading(true);
+    setBulkResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/admin/products/import/bulk`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Error al procesar" }));
+        throw new Error(err.detail || `Error ${res.status}`);
+      }
+      const result: BulkResult = await res.json();
+      setBulkResult(result);
+      setBulkModalOpen(true);
+      await load();
+      if (result.total_errors === 0) {
+        toastSuccess(`${result.created_products} productos y ${result.created_variants} variantes creados.`);
+      } else {
+        toastError(`${result.total_errors} errores, ${result.created_products} productos creados.`);
+      }
+    } catch (err) {
+      toastError(err instanceof Error ? err.message : "Error al subir archivo");
+    } finally {
+      setBulkUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  const filteredProducts = products.filter((p) =>
+    !lowStockOnly || (p.variants || []).some((v) => v.min_stock > 0 && v.stock <= v.min_stock)
+  );
+
+  // Stats
+  const totalProducts = products.length;
+  const activeProducts = products.filter((p) => p.is_active !== false).length;
+  const lowStockCount = products.filter((p) => (p.variants || []).some((v) => v.min_stock > 0 && v.stock <= v.min_stock)).length;
+  const totalStock = products.reduce((sum, p) => sum + (p.stock || 0), 0);
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -164,26 +237,67 @@ export default function AdminProductosPage() {
           <h1 className="text-2xl font-bold text-gray-900">Productos</h1>
           <p className="text-sm text-gray-500 mt-1">Gestioná el catálogo y sus variantes (talla/color).</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar…" className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm" />
           </div>
+          <Select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            options={[{ value: "", label: "Todas las categorías" }, ...categories.map((c) => ({ value: String(c.id), label: c.name }))]}
+          />
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            options={[
+              { value: "all", label: "Todos" },
+              { value: "active", label: "Activos" },
+              { value: "inactive", label: "Inactivos" },
+            ]}
+          />
           <label className="inline-flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 cursor-pointer">
             <input type="checkbox" checked={lowStockOnly} onChange={(e) => setLowStockOnly(e.target.checked)} />
-            Solo bajo stock
+            Bajo stock
           </label>
+          <Button variant="secondary" onClick={downloadTemplate}>
+            <Download className="w-4 h-4" /> Plantilla
+          </Button>
+          <Button variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={bulkUploading}>
+            <Upload className="w-4 h-4" /> {bulkUploading ? "Subiendo..." : "Subir Excel"}
+          </Button>
+          <input ref={fileInputRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFileUpload} />
           <Button onClick={openCreate}><Plus className="w-4 h-4" /> Nuevo producto</Button>
+        </div>
+      </div>
+
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p className="text-xs text-gray-500">Total productos</p>
+          <p className="text-xl font-bold text-gray-900 mt-1">{totalProducts}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p className="text-xs text-gray-500">Activos</p>
+          <p className="text-xl font-bold text-emerald-600 mt-1">{activeProducts}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p className="text-xs text-gray-500">Bajo stock</p>
+          <p className="text-xl font-bold text-amber-600 mt-1">{lowStockCount}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p className="text-xs text-gray-500">Unidades en stock</p>
+          <p className="text-xl font-bold text-brand-700 mt-1">{totalStock}</p>
         </div>
       </div>
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-40 bg-gray-200 rounded-2xl animate-pulse" />)}</div>
-      ) : products.filter((p) => !lowStockOnly || (p.variants || []).some((v) => v.min_stock > 0 && v.stock <= v.min_stock)).length === 0 ? (
-        <EmptyState message={lowStockOnly ? "No hay productos con stock bajo." : "No hay productos. Crea el primero."} />
+      ) : filteredProducts.length === 0 ? (
+        <EmptyState message={lowStockOnly ? "No hay productos con stock bajo." : "No hay productos. Crea el primero o sube un Excel."} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {products.filter((p) => !lowStockOnly || (p.variants || []).some((v) => v.min_stock > 0 && v.stock <= v.min_stock)).map((p) => (
+          {filteredProducts.map((p) => (
             <div key={p.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
               <div className="flex items-start gap-3">
                 <div className="w-16 h-20 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
@@ -199,7 +313,11 @@ export default function AdminProductosPage() {
                   <p className="text-sm text-gray-500">{p.sku || "—"} · {p.category?.name || "Sin categoría"}</p>
                   <p className="text-sm font-medium text-gray-900">{formatPrice(Number(p.display_price))}</p>
                   <p className="text-xs text-gray-400">{p.stock} en stock · {p.variants?.length || 0} variantes</p>
+                  {p.cost != null && <p className="text-xs text-gray-400">Costo: {formatPrice(Number(p.cost))}</p>}
                 </div>
+                {!p.is_active && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Inactivo</span>
+                )}
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <div className="flex gap-1">
@@ -281,6 +399,44 @@ export default function AdminProductosPage() {
                 <button onClick={() => deleteVariant(variantProduct, v)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
               </div>
             ))}
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal resultado bulk */}
+      <Modal open={bulkModalOpen} onClose={() => setBulkModalOpen(false)} title="Resultado de carga masiva" size="lg">
+        {bulkResult && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-emerald-50 rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-emerald-600">{bulkResult.created_products}</p>
+                <p className="text-xs text-emerald-700">Productos creados</p>
+              </div>
+              <div className="bg-brand-50 rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-brand-700">{bulkResult.created_variants}</p>
+                <p className="text-xs text-brand-700">Variantes creadas</p>
+              </div>
+            </div>
+            {bulkResult.errors.length > 0 && (
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700">
+                  Detalles ({bulkResult.total_errors} errores, {bulkResult.total_warnings} advertencias)
+                </div>
+                <div className="max-h-60 overflow-y-auto">
+                  {bulkResult.errors.map((err, i) => (
+                    <div key={i} className={`px-3 py-2 text-xs border-t border-gray-100 flex items-start gap-2 ${err.error ? "text-red-600" : "text-amber-600"}`}>
+                      {err.error ? <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" /> : <CheckCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />}
+                      <span>
+                        {err.sheet ? `[${err.sheet}] ` : ""}Fila {err.row}: {err.error || err.warning}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="flex justify-end">
+              <Button onClick={() => setBulkModalOpen(false)}>Cerrar</Button>
+            </div>
           </div>
         )}
       </Modal>

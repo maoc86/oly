@@ -9,6 +9,8 @@ from app.traffic import traffic_cleanup_loop, traffic_middleware
 from app.routes import (
     auth,
     admin_categories,
+    admin_products_bulk,
+    admin_costing,
     admin_email_templates,
     admin_finance,
     admin_payments,
@@ -83,8 +85,10 @@ app.include_router(uploads.router)
 # Admin
 app.include_router(dashboard.router)
 app.include_router(admin_products.router)
+app.include_router(admin_products_bulk.router)
 app.include_router(admin_products.inventory_router)
 app.include_router(admin_categories.router)
+app.include_router(admin_costing.router)
 app.include_router(admin_payments.router)
 app.include_router(admin_users.router)
 app.include_router(admin_users.catalog_router)
